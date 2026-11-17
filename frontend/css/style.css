@@ -1,0 +1,72 @@
+:root {
+  --warna-utama: #1f6f5c;
+  --warna-teks: #1c1c1c;
+  --warna-latar: #f6f5f1;
+  --warna-kartu: #ffffff;
+  --warna-garis: #dcd9d0;
+  --warna-ok: #1b6e3c;
+  --warna-gagal: #a12a2a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: var(--warna-teks);
+  background: var(--warna-latar);
+}
+
+.lebar {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.kepala {
+  padding: 20px 0;
+  color: #ffffff;
+  background: var(--warna-utama);
+}
+
+.kepala h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.kepala p {
+  margin: 4px 0 0;
+}
+
+.isi {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.kartu {
+  padding: 16px;
+  background: var(--warna-kartu);
+  border: 1px solid var(--warna-garis);
+  border-radius: 8px;
+}
+
+.kartu h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.status {
+  margin: 0;
+}
+
+.status.ok {
+  color: var(--warna-ok);
+}
+
+.status.gagal {
+  color: var(--warna-gagal);
+}

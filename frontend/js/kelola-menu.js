@@ -11,11 +11,6 @@ const tombolBatal = document.getElementById("tombol-batal");
 
 let idYangDiubah = null;
 
-function tampilkanPesan(elemen, teks, jenis = "") {
-  elemen.textContent = teks;
-  elemen.className = `pesan ${jenis}`.trim();
-}
-
 function teksKetersediaan(tersedia) {
   return tersedia ? "Ya" : "Habis";
 }

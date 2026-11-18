@@ -6,6 +6,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
 from menu import menu_bp
+from pelanggan import pelanggan_bp
 
 HOST = os.environ.get("PESANDULU_HOST", "127.0.0.1")
 PORT = int(os.environ.get("PESANDULU_PORT", "5000"))
@@ -27,6 +28,7 @@ app = Flask(__name__)
 app.json.sort_keys = False
 CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
 app.register_blueprint(menu_bp)
+app.register_blueprint(pelanggan_bp)
 
 
 @app.get("/api/status")

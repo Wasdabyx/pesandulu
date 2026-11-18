@@ -42,6 +42,10 @@ a {
   max-width: 1040px;
 }
 
+.lebar.sempit {
+  max-width: 480px;
+}
+
 .kepala {
   padding: 20px 0;
   color: #ffffff;
@@ -174,6 +178,11 @@ a {
   border-color: var(--warna-utama);
 }
 
+.tombol.bahaya {
+  color: var(--warna-gagal);
+  border-color: var(--warna-gagal);
+}
+
 .tombol:disabled {
   opacity: 0.6;
   cursor: default;
@@ -274,9 +283,11 @@ a {
   color: var(--warna-redup);
 }
 
-.formulir input[type="text"],
-.formulir input[type="number"],
-.formulir select {
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="search"],
+select {
   display: block;
   width: 100%;
   min-height: 42px;
@@ -286,6 +297,11 @@ a {
   background: #ffffff;
   border: 1px solid var(--warna-garis-isian);
   border-radius: 6px;
+}
+
+input.isian-cari {
+  width: 260px;
+  max-width: 100%;
 }
 
 .formulir .pilihan {
@@ -305,6 +321,12 @@ a {
 
 .baris-tombol {
   display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.tumpukan-tombol {
+  display: grid;
   gap: 8px;
   margin-top: 16px;
 }

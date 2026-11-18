@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pelanggan - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=1">
+</head>
+<body>
+  <header class="kepala ringkas">
+    <div class="lebar luas navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+      <nav aria-label="Halaman penjual">
+        <a href="kelola-menu.html">Menu</a>
+        <a href="daftar-pelanggan.html" aria-current="page">Pelanggan</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="lebar luas isi">
+    <section class="kartu" aria-labelledby="judul-daftar">
+      <div class="judul-bagian">
+        <h1 id="judul-daftar">Pelanggan</h1>
+        <input id="isian-cari" class="isian-cari" type="search" placeholder="Cari nama / no. HP" aria-label="Cari nama atau nomor HP" autocomplete="off">
+      </div>
+      <p id="pesan-daftar" class="pesan" role="status">Memuat pelanggan…</p>
+      <table class="tabel">
+        <thead>
+          <tr>
+            <th scope="col">Nama</th>
+            <th scope="col">No. HP</th>
+          </tr>
+        </thead>
+        <tbody id="badan-tabel-pelanggan"></tbody>
+      </table>
+      <p id="daftar-kosong" class="keterangan" hidden></p>
+    </section>
+  </main>
+
+  <template id="templat-baris-pelanggan">
+    <tr>
+      <td class="sel-nama"></td>
+      <td class="sel-no-hp" data-label="No. HP"></td>
+    </tr>
+  </template>
+
+  <script src="js/config.js?v=1"></script>
+  <script src="js/umum.js?v=1"></script>
+  <script src="js/daftar-pelanggan.js?v=1"></script>
+</body>
+</html>

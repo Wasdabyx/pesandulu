@@ -8,6 +8,13 @@ MENU = [
     {"id": 5, "nama": "Es Jeruk", "harga": 7000, "kategori": "Minuman", "tersedia": True},
 ]
 
+PELANGGAN = [
+    {"id": 1, "nama": "Sari Dewi", "no_hp": "081200000001"},
+    {"id": 2, "nama": "Budi Santoso", "no_hp": "081200000002"},
+    {"id": 3, "nama": "Andi Pratama", "no_hp": "081200000003"},
+    {"id": 4, "nama": "Rina Lestari", "no_hp": "081200000004"},
+]
+
 
 def _penghitung_setelah(daftar):
     id_terbesar = max((item["id"] for item in daftar), default=0)
@@ -16,6 +23,7 @@ def _penghitung_setelah(daftar):
 
 _penghitung_id = {
     "menu": _penghitung_setelah(MENU),
+    "pelanggan": _penghitung_setelah(PELANGGAN),
 }
 
 

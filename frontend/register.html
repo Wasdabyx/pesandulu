@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+  <header class="kepala ringkas">
+    <div class="lebar sempit navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+    </div>
+  </header>
+
+  <main class="lebar sempit isi">
+    <section class="kartu" aria-labelledby="judul-register">
+      <h1 id="judul-register">Register</h1>
+      <p class="keterangan">Buat akun pelanggan untuk mulai memesan.</p>
+      <form id="formulir-register" class="formulir" hidden>
+        <label for="isian-nama">Nama</label>
+        <input id="isian-nama" name="nama" type="text" maxlength="50" autocomplete="name" required>
+
+        <label for="isian-no-hp">No. HP (contoh: 081234567890)</label>
+        <input id="isian-no-hp" name="no_hp" type="tel" maxlength="20" autocomplete="tel" required>
+
+        <label for="isian-kata-sandi">Kata sandi (6 sampai 64 karakter)</label>
+        <input id="isian-kata-sandi" name="kata_sandi" type="password" minlength="6" maxlength="64" autocomplete="new-password" required>
+
+        <label class="pilihan">
+          <input type="checkbox" class="tampilkan-sandi" data-untuk="isian-kata-sandi" autocomplete="off">
+          Tampilkan kata sandi
+        </label>
+
+        <div class="tumpukan-tombol">
+          <button type="submit" id="tombol-register" class="tombol utama">Register</button>
+        </div>
+      </form>
+      <p id="pesan-register" class="pesan" role="status">Memeriksa sesi…</p>
+      <p class="keterangan">Sudah punya akun? <a href="login.html">Login</a></p>
+    </section>
+  </main>
+
+  <script src="js/config.js?v=3"></script>
+  <script src="js/umum.js?v=3"></script>
+  <script src="js/register.js?v=3"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@ const daftar = document.getElementById("daftar-menu");
 const templatItem = document.getElementById("templat-item-menu");
 const daftarKosong = document.getElementById("daftar-kosong");
 const pesanMenu = document.getElementById("pesan-menu");
-const belumTerdaftar = document.getElementById("belum-terdaftar");
+const belumLogin = document.getElementById("belum-login");
 const tombolSaring = document.querySelectorAll(".tombol-saring");
 const kartuKeranjang = document.getElementById("kartu-keranjang");
 const judulKeranjang = document.getElementById("judul-keranjang");
@@ -117,7 +117,7 @@ function terapkan(pelanggan, menuBaru) {
   if (pelangganSaya === null) {
     keranjang.clear();
   }
-  belumTerdaftar.hidden = pelangganSaya !== null;
+  belumLogin.hidden = pelangganSaya !== null;
   kartuKeranjang.hidden = pelangganSaya === null;
   tampilkanMenu();
   tampilkanKeranjang();
@@ -143,7 +143,8 @@ function isiPilihanWaktu() {
 
 async function segarkan() {
   try {
-    const pelanggan = await muatPelangganSaya();
+    const sesi = await muatSesi();
+    const pelanggan = sesi.peran === "pelanggan" ? sesi.pelanggan : null;
     if (aturan === null) {
       aturan = await panggilApi("/api/pesanan/aturan");
       isiPilihanWaktu();
@@ -167,7 +168,6 @@ async function segarkan() {
 async function kirimPesanan(peristiwa) {
   peristiwa.preventDefault();
   const isian = {
-    pelanggan_id: pelangganSaya.id,
     items: itemKeranjang().map((item) => ({ menu_id: item.menu_id, jumlah: item.jumlah })),
     waktu_ambil: formulir.elements.waktu_ambil.value,
   };

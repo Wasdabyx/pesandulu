@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+  <header class="kepala ringkas">
+    <div class="lebar sempit navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+    </div>
+  </header>
+
+  <main class="lebar sempit isi">
+    <section class="kartu" aria-labelledby="judul-login">
+      <h1 id="judul-login">Login</h1>
+      <form id="formulir-login" class="formulir" hidden>
+        <fieldset class="pilihan-peran">
+          <legend>Login sebagai</legend>
+          <label class="pilihan">
+            <input type="radio" name="peran" value="pelanggan" autocomplete="off" checked>
+            Pelanggan
+          </label>
+          <label class="pilihan">
+            <input type="radio" name="peran" value="penjual" autocomplete="off">
+            Penjual
+          </label>
+        </fieldset>
+
+        <div id="kelompok-no-hp">
+          <label for="isian-no-hp">No. HP</label>
+          <input id="isian-no-hp" name="no_hp" type="tel" maxlength="20" autocomplete="username" required>
+        </div>
+
+        <label for="isian-kata-sandi">Kata sandi</label>
+        <input id="isian-kata-sandi" name="kata_sandi" type="password" maxlength="64" autocomplete="current-password" required>
+
+        <label class="pilihan">
+          <input type="checkbox" class="tampilkan-sandi" data-untuk="isian-kata-sandi" autocomplete="off">
+          Tampilkan kata sandi
+        </label>
+
+        <div class="tumpukan-tombol">
+          <button type="submit" id="tombol-login" class="tombol utama">Login</button>
+        </div>
+      </form>
+      <p id="pesan-login" class="pesan" role="status">Memeriksa sesi…</p>
+      <p class="keterangan">Belum punya akun? <a href="register.html">Register</a></p>
+    </section>
+  </main>
+
+  <script src="js/config.js?v=3"></script>
+  <script src="js/umum.js?v=3"></script>
+  <script src="js/login.js?v=3"></script>
+</body>
+</html>

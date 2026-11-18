@@ -1,5 +1,24 @@
 from itertools import count
 
+from werkzeug.security import generate_password_hash
+
+CARA_HASH = "pbkdf2:sha256:600000"
+
+
+def hash_sandi(kata_sandi):
+    return generate_password_hash(kata_sandi, method=CARA_HASH)
+
+
+def teks_utf8_sah(teks):
+    try:
+        teks.encode()
+    except UnicodeEncodeError:
+        return False
+    return True
+
+
+_SANDI_CONTOH = hash_sandi("pelanggan123")
+
 MENU = [
     {"id": 1, "nama": "Nasi Goreng", "harga": 15000, "kategori": "Makanan", "tersedia": True},
     {"id": 2, "nama": "Ayam Geprek", "harga": 18000, "kategori": "Makanan", "tersedia": True},
@@ -9,10 +28,10 @@ MENU = [
 ]
 
 PELANGGAN = [
-    {"id": 1, "nama": "Sari Dewi", "no_hp": "081200000001"},
-    {"id": 2, "nama": "Budi Santoso", "no_hp": "081200000002"},
-    {"id": 3, "nama": "Andi Pratama", "no_hp": "081200000003"},
-    {"id": 4, "nama": "Rina Lestari", "no_hp": "081200000004"},
+    {"id": 1, "nama": "Sari Dewi", "no_hp": "081200000001", "kata_sandi": _SANDI_CONTOH},
+    {"id": 2, "nama": "Budi Santoso", "no_hp": "081200000002", "kata_sandi": _SANDI_CONTOH},
+    {"id": 3, "nama": "Andi Pratama", "no_hp": "081200000003", "kata_sandi": _SANDI_CONTOH},
+    {"id": 4, "nama": "Rina Lestari", "no_hp": "081200000004", "kata_sandi": _SANDI_CONTOH},
 ]
 
 PESANAN = [

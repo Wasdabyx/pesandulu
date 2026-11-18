@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+  <header class="kepala ringkas">
+    <div class="lebar luas navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+      <nav aria-label="Halaman penjual">
+        <a href="dashboard-penjual.html" aria-current="page">Dashboard</a>
+        <a href="antrean-pesanan.html">Pesanan</a>
+        <a href="kelola-menu.html">Menu</a>
+        <a href="daftar-pelanggan.html">Pelanggan</a>
+      </nav>
+      <button type="button" class="tombol-kepala tombol-logout">Logout</button>
+    </div>
+  </header>
+
+  <main class="lebar luas isi">
+    <section class="kartu" aria-labelledby="judul-dashboard">
+      <h1 id="judul-dashboard">Dashboard</h1>
+      <p id="pesan-dashboard" class="pesan" role="status">Memuat dashboard…</p>
+      <div id="ringkasan" class="ringkasan ringkasan-lebar" hidden>
+        <div class="kotak-angka" data-status="menunggu"><span class="angka"></span><span class="nama-angka">Menunggu</span></div>
+        <div class="kotak-angka" data-status="diproses"><span class="angka"></span><span class="nama-angka">Diproses</span></div>
+        <div class="kotak-angka" data-status="siap diambil"><span class="angka"></span><span class="nama-angka">Siap diambil</span></div>
+        <div class="kotak-angka" data-status="selesai"><span class="angka"></span><span class="nama-angka">Selesai</span></div>
+        <div class="kotak-angka lebar-ganda"><span id="total-penjualan" class="angka"></span><span class="nama-angka">Penjualan</span></div>
+      </div>
+    </section>
+
+    <section class="kartu" aria-labelledby="judul-terlaris">
+      <h2 id="judul-terlaris">Menu Terlaris</h2>
+      <p class="keterangan">Penjualan dan menu terlaris dihitung dari pesanan yang sudah selesai.</p>
+      <ol id="daftar-terlaris" class="daftar-terlaris"></ol>
+      <p id="terlaris-kosong" class="keterangan" hidden>Belum ada pesanan yang selesai.</p>
+      <p class="total-terjual"><span>Total terjual</span><strong id="total-terjual"></strong></p>
+    </section>
+  </main>
+
+  <template id="templat-terlaris">
+    <li class="baris-terlaris">
+      <span class="nama-terlaris"></span>
+      <span class="batang" aria-hidden="true"><span class="isi-batang"></span></span>
+      <span class="jumlah-terlaris"></span>
+    </li>
+  </template>
+
+  <script src="js/config.js?v=3"></script>
+  <script src="js/umum.js?v=3"></script>
+  <script src="js/dashboard-penjual.js?v=3"></script>
+</body>
+</html>

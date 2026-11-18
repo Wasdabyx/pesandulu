@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body class="ada-navigasi-bawah">
+  <header class="kepala ringkas">
+    <div class="lebar sempit navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+    </div>
+  </header>
+
+  <main class="lebar sempit isi">
+    <section class="kartu" aria-labelledby="judul-dashboard">
+      <h1 id="judul-dashboard">Dashboard</h1>
+      <p id="sapaan" class="keterangan"></p>
+      <p id="pesan-dashboard" class="pesan" role="status">Memuat dashboard…</p>
+      <div id="ringkasan" class="ringkasan" hidden>
+        <div class="kotak-angka" data-status="menunggu"><span class="angka"></span><span class="nama-angka">Menunggu</span></div>
+        <div class="kotak-angka" data-status="diproses"><span class="angka"></span><span class="nama-angka">Diproses</span></div>
+        <div class="kotak-angka" data-status="siap diambil"><span class="angka"></span><span class="nama-angka">Siap diambil</span></div>
+        <div class="kotak-angka" data-status="selesai"><span class="angka"></span><span class="nama-angka">Selesai</span></div>
+      </div>
+      <div class="tumpukan-tombol">
+        <a class="tombol utama" href="buat-pesanan.html">Pesan Sekarang</a>
+        <button type="button" class="tombol tombol-logout">Logout</button>
+      </div>
+    </section>
+
+    <section class="kartu" aria-labelledby="judul-berjalan">
+      <h2 id="judul-berjalan">Pesanan yang sedang berjalan</h2>
+      <ul id="daftar-berjalan" class="daftar-pesanan"></ul>
+      <p id="berjalan-kosong" class="keterangan" hidden>Tidak ada pesanan yang sedang berjalan.</p>
+      <p class="keterangan"><a href="pesanan-saya.html">Lihat semua pesanan</a></p>
+    </section>
+  </main>
+
+  <nav class="navigasi-bawah" aria-label="Halaman pelanggan">
+    <a href="dashboard-pelanggan.html" aria-current="page">Dashboard</a>
+    <a href="buat-pesanan.html">Menu</a>
+    <a href="pesanan-saya.html">Pesanan</a>
+    <a href="profil.html">Profil</a>
+  </nav>
+
+  <template id="templat-pesanan">
+    <li class="item-pesanan">
+      <div class="baris-pesanan">
+        <span class="nomor-pesanan"></span>
+        <span class="label-status"></span>
+      </div>
+      <p class="isi-pesanan"></p>
+      <p class="keterangan rincian-pesanan"></p>
+    </li>
+  </template>
+
+  <script src="js/config.js?v=3"></script>
+  <script src="js/umum.js?v=3"></script>
+  <script src="js/dashboard-pelanggan.js?v=3"></script>
+</body>
+</html>

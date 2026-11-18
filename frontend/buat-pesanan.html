@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Menu - PesanDulu</title>
-  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body class="ada-navigasi-bawah">
   <header class="kepala ringkas">
@@ -16,7 +16,7 @@
   <main class="lebar sempit isi">
     <section class="kartu" aria-labelledby="judul-menu">
       <h1 id="judul-menu">Menu</h1>
-      <p id="belum-terdaftar" class="pemberitahuan" hidden>Untuk memesan, <a href="profil.html">daftar dulu di halaman Profil</a>.</p>
+      <p id="belum-login" class="pemberitahuan" hidden>Untuk memesan, <a href="login.html">login</a> dulu sebagai pelanggan. Belum punya akun? <a href="register.html">Register</a>.</p>
       <div class="saringan" role="group" aria-label="Saring kategori">
         <button type="button" class="tombol-saring" data-kategori="" aria-pressed="true">Semua</button>
         <button type="button" class="tombol-saring" data-kategori="Makanan" aria-pressed="false">Makanan</button>
@@ -46,6 +46,7 @@
   </main>
 
   <nav class="navigasi-bawah" aria-label="Halaman pelanggan">
+    <a href="dashboard-pelanggan.html">Dashboard</a>
     <a href="buat-pesanan.html" aria-current="page">Menu</a>
     <a href="pesanan-saya.html">Pesanan</a>
     <a href="profil.html">Profil</a>
@@ -67,8 +68,8 @@
     </li>
   </template>
 
-  <script src="js/config.js?v=2"></script>
-  <script src="js/umum.js?v=2"></script>
-  <script src="js/buat-pesanan.js?v=2"></script>
+  <script src="js/config.js?v=3"></script>
+  <script src="js/umum.js?v=3"></script>
+  <script src="js/buat-pesanan.js?v=3"></script>
 </body>
 </html>

@@ -28,6 +28,10 @@ function tampilkanDaftar() {
 
 async function muatPelanggan() {
   try {
+    const sesi = await wajibLogin("penjual");
+    if (!sesi) {
+      return;
+    }
     semuaPelanggan = await panggilApi("/api/pelanggan");
     tampilkanDaftar();
     tampilkanPesan(pesanDaftar, "");

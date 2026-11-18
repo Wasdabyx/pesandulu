@@ -1,7 +1,6 @@
 const daftar = document.getElementById("daftar-pesanan");
 const templatPesanan = document.getElementById("templat-pesanan");
 const pesanDaftar = document.getElementById("pesan-daftar");
-const belumTerdaftar = document.getElementById("belum-terdaftar");
 const daftarKosong = document.getElementById("daftar-kosong");
 
 let cetakan = null;
@@ -11,34 +10,30 @@ function buatItem(pesanan) {
   const elemen = templatPesanan.content.firstElementChild.cloneNode(true);
   const tombolBatalkan = elemen.querySelector(".tombol-batalkan");
 
-  elemen.querySelector(".nomor-pesanan").textContent = `#${pesanan.id}`;
-  isiLabelStatus(elemen.querySelector(".label-status"), pesanan.status);
-  elemen.querySelector(".isi-pesanan").textContent = ringkasItems(pesanan.items);
-  elemen.querySelector(".rincian-pesanan").textContent = `Ambil ${formatWaktu(pesanan.waktu_ambil)} · ${formatRupiah(pesanan.total)}`;
+  isiPesanan(elemen, pesanan);
   tombolBatalkan.hidden = pesanan.status !== "menunggu";
   tombolBatalkan.setAttribute("aria-label", `Batalkan pesanan #${pesanan.id}`);
   tombolBatalkan.addEventListener("click", () => batalkanPesanan(pesanan));
   return elemen;
 }
 
-function tampilkanDaftar(pelanggan, daftarPesanan) {
+function tampilkanDaftar(daftarPesanan) {
   const terbaruDulu = [...daftarPesanan].sort((a, b) => b.id - a.id);
   daftar.replaceChildren(...terbaruDulu.map(buatItem));
-  belumTerdaftar.hidden = pelanggan !== null;
-  daftarKosong.hidden = pelanggan === null || daftarPesanan.length > 0;
+  daftarKosong.hidden = daftarPesanan.length > 0;
 }
 
 async function segarkan() {
   try {
-    const pelanggan = await muatPelangganSaya();
-    let daftarPesanan = [];
-    if (pelanggan !== null) {
-      daftarPesanan = await panggilApi(`/api/pesanan?pelanggan_id=${pelanggan.id}`);
+    const sesi = await wajibLogin("pelanggan");
+    if (!sesi) {
+      return;
     }
-    const cetakanBaru = JSON.stringify([pelanggan, daftarPesanan]);
+    const daftarPesanan = await panggilApi("/api/pesanan");
+    const cetakanBaru = JSON.stringify(daftarPesanan);
     if (cetakanBaru !== cetakan) {
       cetakan = cetakanBaru;
-      tampilkanDaftar(pelanggan, daftarPesanan);
+      tampilkanDaftar(daftarPesanan);
     }
     if (pesanMuatTampil) {
       pesanMuatTampil = false;

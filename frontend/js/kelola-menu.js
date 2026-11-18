@@ -34,6 +34,10 @@ function buatBaris(menu) {
 }
 
 async function muatMenu() {
+  const sesi = await wajibLogin("penjual");
+  if (!sesi) {
+    return;
+  }
   const daftarMenu = await panggilApi("/api/menu");
   badanTabel.replaceChildren(...daftarMenu.map(buatBaris));
   daftarKosong.hidden = daftarMenu.length > 0;

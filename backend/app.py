@@ -5,9 +5,11 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
+from login import SANDI_PENJUAL, SANDI_PENJUAL_BAWAAN, login_bp
 from menu import menu_bp
 from pelanggan import pelanggan_bp
 from pesanan import pesanan_bp
+from rekap import rekap_bp
 
 HOST = os.environ.get("PESANDULU_HOST", "127.0.0.1")
 PORT = int(os.environ.get("PESANDULU_PORT", "5000"))
@@ -27,10 +29,12 @@ PESAN_GALAT = {
 
 app = Flask(__name__)
 app.json.sort_keys = False
-CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
+CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS, "max_age": 600}})
+app.register_blueprint(login_bp)
 app.register_blueprint(menu_bp)
 app.register_blueprint(pelanggan_bp)
 app.register_blueprint(pesanan_bp)
+app.register_blueprint(rekap_bp)
 
 
 @app.get("/api/status")
@@ -50,4 +54,6 @@ def galat_http(galat):
 
 
 if __name__ == "__main__":
+    if SANDI_PENJUAL == SANDI_PENJUAL_BAWAAN and HOST not in ("127.0.0.1", "localhost"):
+        print("PERINGATAN: kata sandi penjual masih bawaan. Isi PESANDULU_SANDI_PENJUAL sebelum aplikasi dibuka untuk umum.")
     app.run(host=HOST, port=PORT)

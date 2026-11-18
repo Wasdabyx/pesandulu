@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 
 from data import MENU, PELANGGAN, PESANAN, cari, id_baru
+from sesi import tidak_berhak, wajib_login
 
 URUTAN_STATUS = ("menunggu", "diproses", "siap diambil", "selesai")
 JAM_BUKA = 9
@@ -15,16 +16,13 @@ WAKTU_AMBIL = [
 pesanan_bp = Blueprint("pesanan", __name__, url_prefix="/api/pesanan")
 
 
-def periksa_isian(kiriman):
+def periksa_isian(kiriman, id_pelanggan):
     if not isinstance(kiriman, dict):
         return None, "Isi permintaan harus berupa JSON."
 
-    id_pelanggan = kiriman.get("pelanggan_id")
     kiriman_items = kiriman.get("items")
     waktu_ambil = kiriman.get("waktu_ambil")
 
-    if type(id_pelanggan) is not int or cari(PELANGGAN, id_pelanggan) is None:
-        return None, "Pelanggan tidak ditemukan."
     if not isinstance(kiriman_items, list) or not kiriman_items:
         return None, "Pesanan harus berisi paling sedikit satu menu."
 
@@ -69,19 +67,18 @@ def lengkapi(pesanan):
     return {**pesanan, "nama_pelanggan": pelanggan["nama"] if pelanggan else None}
 
 
+def milik_orang_lain(pesanan):
+    return g.sesi["peran"] == "pelanggan" and g.sesi["pelanggan_id"] != pesanan["pelanggan_id"]
+
+
 def tidak_ditemukan():
     return jsonify({"pesan": "Pesanan tidak ditemukan."}), 404
 
 
 @pesanan_bp.get("")
+@wajib_login("penjual", "pelanggan")
 def daftar_pesanan():
-    daftar = PESANAN
-    if "pelanggan_id" in request.args:
-        id_pelanggan = request.args.get("pelanggan_id", type=int)
-        if id_pelanggan is None:
-            return jsonify({"pesan": "pelanggan_id harus berupa angka."}), 400
-        daftar = [pesanan for pesanan in PESANAN if pesanan["pelanggan_id"] == id_pelanggan]
-    return jsonify([lengkapi(pesanan) for pesanan in daftar])
+    return jsonify([lengkapi(pesanan) for pesanan in PESANAN if not milik_orang_lain(pesanan)])
 
 
 @pesanan_bp.get("/aturan")
@@ -90,16 +87,20 @@ def aturan_pesanan():
 
 
 @pesanan_bp.get("/<int:id_pesanan>")
+@wajib_login("penjual", "pelanggan")
 def lihat_pesanan(id_pesanan):
     pesanan = cari(PESANAN, id_pesanan)
     if pesanan is None:
         return tidak_ditemukan()
+    if milik_orang_lain(pesanan):
+        return tidak_berhak()
     return jsonify(lengkapi(pesanan))
 
 
 @pesanan_bp.post("")
+@wajib_login("pelanggan")
 def buat_pesanan():
-    isian, pesan = periksa_isian(request.get_json(silent=True))
+    isian, pesan = periksa_isian(request.get_json(silent=True), g.sesi["pelanggan_id"])
     if pesan:
         return jsonify({"pesan": pesan}), 400
     pesanan = {"id": id_baru("pesanan"), **isian}
@@ -108,6 +109,7 @@ def buat_pesanan():
 
 
 @pesanan_bp.patch("/<int:id_pesanan>")
+@wajib_login("penjual")
 def ubah_status(id_pesanan):
     pesanan = cari(PESANAN, id_pesanan)
     if pesanan is None:
@@ -125,10 +127,13 @@ def ubah_status(id_pesanan):
 
 
 @pesanan_bp.delete("/<int:id_pesanan>")
+@wajib_login("pelanggan")
 def batalkan_pesanan(id_pesanan):
     pesanan = cari(PESANAN, id_pesanan)
     if pesanan is None:
         return tidak_ditemukan()
+    if milik_orang_lain(pesanan):
+        return tidak_berhak()
     if pesanan["status"] != URUTAN_STATUS[0]:
         return jsonify({"pesan": "Pesanan yang sudah diproses tidak bisa dibatalkan."}), 400
     PESANAN.remove(pesanan)

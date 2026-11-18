@@ -59,6 +59,10 @@ function tampilkanDaftar() {
 
 async function segarkan() {
   try {
+    const sesi = await wajibLogin("penjual");
+    if (!sesi) {
+      return;
+    }
     const daftarPesanan = await panggilApi("/api/pesanan");
     const cetakanBaru = JSON.stringify(daftarPesanan);
     if (cetakanBaru !== cetakan) {

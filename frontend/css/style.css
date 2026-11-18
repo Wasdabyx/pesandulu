@@ -91,7 +91,19 @@ a {
 
 .navigasi nav {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.tombol-kepala {
+  margin-left: auto;
+  padding: 4px 12px;
+  font: inherit;
+  color: #ffffff;
+  background: transparent;
+  border: 1px solid #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .navigasi nav a {
@@ -126,8 +138,10 @@ a {
 
 .navigasi-bawah a {
   flex: 1;
-  max-width: 160px;
-  padding: 13px 8px;
+  max-width: 120px;
+  padding: 13px 2px;
+  font-size: 0.95rem;
+  white-space: nowrap;
   color: var(--warna-redup);
   text-align: center;
   text-decoration: none;
@@ -223,6 +237,12 @@ a {
   color: #ffffff;
   background: var(--warna-utama);
   border-color: var(--warna-utama);
+}
+
+a.tombol {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .tombol.bahaya {
@@ -425,6 +445,100 @@ a {
   font-size: 1.1rem;
 }
 
+.ringkasan {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.kotak-angka.lebar-ganda {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 560px) {
+  .ringkasan-lebar {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .ringkasan-lebar {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .ringkasan-lebar .lebar-ganda {
+    grid-column: span 2;
+  }
+}
+
+.kotak-angka {
+  min-width: 0;
+  padding: 10px 12px;
+  background: var(--warna-latar);
+  border: 1px solid var(--warna-garis);
+  border-radius: 6px;
+}
+
+.kotak-angka .angka {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.nama-angka {
+  font-size: 0.9rem;
+  color: var(--warna-redup);
+}
+
+.daftar-terlaris {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.baris-terlaris {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.nama-terlaris {
+  overflow-wrap: anywhere;
+}
+
+.batang {
+  height: 14px;
+  overflow: hidden;
+  background: var(--warna-latar);
+  border: 1px solid var(--warna-garis);
+  border-radius: 999px;
+}
+
+.isi-batang {
+  display: block;
+  height: 100%;
+  background: var(--warna-utama);
+}
+
+.jumlah-terlaris {
+  min-width: 28px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.total-terjual {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 2px solid var(--warna-garis);
+}
+
 .item-pesanan {
   padding: 12px 0;
   border-bottom: 1px dashed var(--warna-garis);
@@ -506,6 +620,7 @@ input[type="text"],
 input[type="number"],
 input[type="tel"],
 input[type="search"],
+input[type="password"],
 select {
   display: block;
   width: 100%;
@@ -538,6 +653,25 @@ input.isian-cari {
   accent-color: var(--warna-utama);
 }
 
+.pilihan-peran {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.pilihan-peran legend {
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--warna-redup);
+}
+
+.pilihan-peran .pilihan {
+  margin-top: 6px;
+}
+
 .baris-tombol {
   display: flex;
   gap: 8px;
@@ -557,6 +691,11 @@ input.isian-cari {
 }
 
 @media (max-width: 640px) {
+  .navigasi nav {
+    flex-basis: 100%;
+    order: 1;
+  }
+
   .tombol-teks {
     padding: 6px 8px;
   }

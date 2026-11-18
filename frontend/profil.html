@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Profil Saya - PesanDulu</title>
-  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body class="ada-navigasi-bawah">
   <header class="kepala ringkas">
@@ -16,7 +16,6 @@
   <main class="lebar sempit isi">
     <section class="kartu" aria-labelledby="judul-profil">
       <h1 id="judul-profil">Profil Saya</h1>
-      <p id="keterangan-profil" class="keterangan"></p>
       <form id="formulir-profil" class="formulir" hidden>
         <label for="isian-nama">Nama</label>
         <input id="isian-nama" name="nama" type="text" maxlength="50" autocomplete="name" required>
@@ -24,9 +23,18 @@
         <label for="isian-no-hp">No. HP (contoh: 081234567890)</label>
         <input id="isian-no-hp" name="no_hp" type="tel" maxlength="20" autocomplete="tel" required>
 
+        <label for="isian-kata-sandi">Kata sandi baru (kosongkan kalau tidak diganti)</label>
+        <input id="isian-kata-sandi" name="kata_sandi" type="password" minlength="6" maxlength="64" autocomplete="new-password">
+
+        <label class="pilihan">
+          <input type="checkbox" class="tampilkan-sandi" data-untuk="isian-kata-sandi" autocomplete="off">
+          Tampilkan kata sandi
+        </label>
+
         <div class="tumpukan-tombol">
           <button type="submit" id="tombol-simpan" class="tombol utama">Simpan</button>
-          <button type="button" id="tombol-hapus" class="tombol bahaya" hidden>Hapus Akun</button>
+          <button type="button" class="tombol tombol-logout">Logout</button>
+          <button type="button" id="tombol-hapus" class="tombol bahaya">Hapus Akun</button>
         </div>
       </form>
       <p id="pesan-profil" class="pesan" role="status">Memuat profil…</p>
@@ -34,13 +42,14 @@
   </main>
 
   <nav class="navigasi-bawah" aria-label="Halaman pelanggan">
+    <a href="dashboard-pelanggan.html">Dashboard</a>
     <a href="buat-pesanan.html">Menu</a>
     <a href="pesanan-saya.html">Pesanan</a>
     <a href="profil.html" aria-current="page">Profil</a>
   </nav>
 
-  <script src="js/config.js?v=2"></script>
-  <script src="js/umum.js?v=2"></script>
-  <script src="js/profil.js?v=2"></script>
+  <script src="js/config.js?v=3"></script>
+  <script src="js/umum.js?v=3"></script>
+  <script src="js/profil.js?v=3"></script>
 </body>
 </html>

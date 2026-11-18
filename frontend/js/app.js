@@ -1,11 +1,17 @@
-async function periksaBackend() {
-  const elemen = document.getElementById("status-backend");
+const statusBackend = document.getElementById("status-backend");
+
+async function mulai() {
   try {
+    const sesi = await muatSesi();
+    if (sesi.peran !== null) {
+      window.location.replace(HALAMAN_DASHBOARD[sesi.peran]);
+      return;
+    }
     const data = await panggilApi("/api/status");
-    tampilkanPesan(elemen, `Terhubung ke back-end ${data.aplikasi}. Waktu server: ${data.waktu_server}.`, "ok");
+    tampilkanPesan(statusBackend, `Terhubung ke back-end ${data.aplikasi}. Waktu server: ${data.waktu_server}.`, "ok");
   } catch (galat) {
-    tampilkanPesan(elemen, galat.message, "gagal");
+    tampilkanPesan(statusBackend, galat.message, "gagal");
   }
 }
 
-periksaBackend();
+mulai();

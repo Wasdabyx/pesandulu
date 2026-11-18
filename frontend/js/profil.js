@@ -1,5 +1,3 @@
-const judul = document.getElementById("judul-profil");
-const keterangan = document.getElementById("keterangan-profil");
 const formulir = document.getElementById("formulir-profil");
 const tombolSimpan = document.getElementById("tombol-simpan");
 const tombolHapus = document.getElementById("tombol-hapus");
@@ -7,37 +5,22 @@ const pesan = document.getElementById("pesan-profil");
 
 let pelangganSaya = null;
 
-function tampilkanProfil(pelanggan) {
+function isiFormulir(pelanggan) {
   pelangganSaya = pelanggan;
-  judul.textContent = pelanggan ? "Profil Saya" : "Daftar";
-  keterangan.textContent = pelanggan ? "" : "Isi nama dan nomor HP untuk mendaftar.";
-  tombolSimpan.textContent = pelanggan ? "Simpan" : "Daftar";
-  tombolHapus.hidden = !pelanggan;
-  formulir.elements.nama.value = pelanggan ? pelanggan.nama : "";
-  formulir.elements.no_hp.value = pelanggan ? pelanggan.no_hp : "";
+  formulir.elements.nama.value = pelanggan.nama;
+  formulir.elements.no_hp.value = pelanggan.no_hp;
+  formulir.elements.kata_sandi.value = "";
   formulir.hidden = false;
 }
 
-function tanganiGalat(galat) {
-  if (galat.status === 404 && pelangganSaya !== null) {
-    lupakanPelanggan();
-    tampilkanProfil(null);
-    tampilkanPesan(pesan, "Akun Anda sudah tidak ada. Silakan daftar lagi.", "gagal");
-  } else {
-    tampilkanPesan(pesan, galat.message, "gagal");
-  }
-}
-
 async function muatProfil() {
-  const adaAkunTersimpan = Boolean(bacaPelangganTersimpan());
   try {
-    const pelanggan = await muatPelangganSaya();
-    tampilkanProfil(pelanggan);
-    if (adaAkunTersimpan && !pelanggan) {
-      tampilkanPesan(pesan, "Akun yang tersimpan di perangkat ini sudah tidak ada. Silakan daftar lagi.", "gagal");
-    } else {
-      tampilkanPesan(pesan, "");
+    const sesi = await wajibLogin("pelanggan");
+    if (!sesi) {
+      return;
     }
+    isiFormulir(sesi.pelanggan);
+    tampilkanPesan(pesan, "");
   } catch (galat) {
     tampilkanPesan(pesan, galat.message, "gagal");
   }
@@ -49,23 +32,17 @@ async function simpanProfil(peristiwa) {
     nama: formulir.elements.nama.value,
     no_hp: formulir.elements.no_hp.value,
   };
+  if (formulir.elements.kata_sandi.value !== "") {
+    isian.kata_sandi = formulir.elements.kata_sandi.value;
+  }
 
   tombolSimpan.disabled = true;
   try {
-    let pelanggan;
-    let pesanBerhasil;
-    if (pelangganSaya === null) {
-      pelanggan = await panggilApi("/api/pelanggan", "POST", isian);
-      pesanBerhasil = "Pendaftaran berhasil.";
-    } else {
-      pelanggan = await panggilApi(`/api/pelanggan/${pelangganSaya.id}`, "PATCH", isian);
-      pesanBerhasil = "Profil disimpan.";
-    }
-    simpanPelanggan(pelanggan);
-    tampilkanProfil(pelanggan);
-    tampilkanPesan(pesan, pesanBerhasil, "ok");
+    const pelanggan = await panggilApi(`/api/pelanggan/${pelangganSaya.id}`, "PATCH", isian);
+    isiFormulir(pelanggan);
+    tampilkanPesan(pesan, isian.kata_sandi ? "Profil dan kata sandi disimpan." : "Profil disimpan.", "ok");
   } catch (galat) {
-    tanganiGalat(galat);
+    tampilkanPesan(pesan, galat.message, "gagal");
   } finally {
     tombolSimpan.disabled = false;
   }
@@ -78,13 +55,12 @@ async function hapusAkun() {
   }
   try {
     await panggilApi(`/api/pelanggan/${pelangganSaya.id}`, "DELETE");
-    lupakanPelanggan();
-    tampilkanProfil(null);
-    tampilkanPesan(pesan, "Akun dihapus.", "ok");
+    hapusToken();
+    window.location.href = "index.html";
   } catch (galat) {
-    tanganiGalat(galat);
+    tampilkanPesan(pesan, galat.message, "gagal");
+    pesan.scrollIntoView({ block: "nearest" });
   }
-  pesan.scrollIntoView({ block: "nearest" });
 }
 
 formulir.addEventListener("submit", simpanProfil);

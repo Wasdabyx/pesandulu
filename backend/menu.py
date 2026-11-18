@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from data import MENU, cari, id_baru
+from sesi import wajib_login
 
 KATEGORI = ("Makanan", "Minuman")
 PANJANG_NAMA_TERTINGGI = 50
@@ -55,6 +56,7 @@ def lihat_menu(id_menu):
 
 
 @menu_bp.post("")
+@wajib_login("penjual")
 def tambah_menu():
     isian, pesan = periksa_isian(request.get_json(silent=True))
     if pesan:
@@ -65,6 +67,7 @@ def tambah_menu():
 
 
 @menu_bp.patch("/<int:id_menu>")
+@wajib_login("penjual")
 def ubah_menu(id_menu):
     menu = cari(MENU, id_menu)
     if menu is None:
@@ -77,6 +80,7 @@ def ubah_menu(id_menu):
 
 
 @menu_bp.delete("/<int:id_menu>")
+@wajib_login("penjual")
 def hapus_menu(id_menu):
     menu = cari(MENU, id_menu)
     if menu is None:

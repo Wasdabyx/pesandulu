@@ -32,6 +32,29 @@ py -m http.server 5500 --bind 127.0.0.1
 
 Buka `http://127.0.0.1:5500` di browser.
 
+## Halaman
+
+| Halaman | Alamat | Pengguna |
+|---|---|---|
+| Beranda | `/` | Semua |
+| Kelola Menu | `/kelola-menu.html` | Penjual |
+
+## API
+
+| Metode | Alamat | Kegunaan |
+|---|---|---|
+| GET | `/api/status` | Memeriksa back-end |
+| GET | `/api/menu` | Melihat semua menu |
+| GET | `/api/menu/<id>` | Melihat satu menu |
+| POST | `/api/menu` | Menambah menu |
+| PATCH | `/api/menu/<id>` | Mengubah menu; kolom yang tidak dikirim tidak berubah |
+| DELETE | `/api/menu/<id>` | Menghapus menu |
+
+Isi permintaan dan jawaban berformat JSON. Kolom menu: `nama`, `harga`, `kategori` (`Makanan` atau `Minuman`), dan `tersedia` (`true` atau `false`).
+Kalau permintaan gagal, back-end menjawab dengan kode status 4xx dan JSON `{"pesan": "..."}`.
+
+Data awal ada di `backend/data.py`. Perubahan hanya tersimpan di memori, jadi data kembali ke isi awal setiap back-end dijalankan ulang.
+
 ## Konfigurasi back-end
 
 Back-end membaca environment variable berikut. Kalau tidak diisi, nilai bawaan yang dipakai.

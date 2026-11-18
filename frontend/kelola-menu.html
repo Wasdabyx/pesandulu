@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kelola Menu - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="kepala ringkas">
+    <div class="lebar luas navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+      <nav aria-label="Halaman penjual">
+        <a href="kelola-menu.html" aria-current="page">Menu</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="lebar luas isi dua-kolom">
+    <section class="kartu" aria-labelledby="judul-daftar">
+      <div class="judul-bagian">
+        <h1 id="judul-daftar">Kelola Menu</h1>
+        <button type="button" id="tombol-tambah" class="tombol utama">+ Tambah Menu</button>
+      </div>
+      <p id="pesan-daftar" class="pesan" role="status">Memuat menu…</p>
+      <table class="tabel">
+        <thead>
+          <tr>
+            <th scope="col">Nama</th>
+            <th scope="col">Kategori</th>
+            <th scope="col">Harga</th>
+            <th scope="col">Tersedia</th>
+            <th scope="col">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="badan-tabel-menu"></tbody>
+      </table>
+      <p id="daftar-kosong" class="keterangan" hidden>Belum ada menu.</p>
+    </section>
+
+    <section class="kartu" aria-labelledby="judul-formulir">
+      <h2 id="judul-formulir">Tambah Menu</h2>
+      <form id="formulir-menu" class="formulir">
+        <label for="isian-nama">Nama</label>
+        <input id="isian-nama" name="nama" type="text" maxlength="50" autocomplete="off" required>
+
+        <label for="isian-kategori">Kategori</label>
+        <select id="isian-kategori" name="kategori" required>
+          <option>Makanan</option>
+          <option>Minuman</option>
+        </select>
+
+        <label for="isian-harga">Harga (Rp)</label>
+        <input id="isian-harga" name="harga" type="number" min="1" max="1000000" step="1" inputmode="numeric" required>
+
+        <label class="pilihan">
+          <input name="tersedia" type="checkbox" checked>
+          Tersedia
+        </label>
+
+        <div class="baris-tombol">
+          <button type="submit" id="tombol-simpan" class="tombol utama">Simpan</button>
+          <button type="button" id="tombol-batal" class="tombol">Batal</button>
+        </div>
+        <p id="pesan-formulir" class="pesan" role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <template id="templat-baris-menu">
+    <tr>
+      <td class="sel-nama"></td>
+      <td class="sel-kategori" data-label="Kategori"></td>
+      <td class="sel-harga" data-label="Harga"></td>
+      <td data-label="Tersedia">
+        <label class="pilihan-sakelar">
+          <input type="checkbox" role="switch" class="sakelar">
+          <span class="teks-sakelar"></span>
+        </label>
+      </td>
+      <td class="sel-aksi" data-label="Aksi">
+        <button type="button" class="tombol-teks tombol-ubah">Ubah</button>
+        <button type="button" class="tombol-teks bahaya tombol-hapus">Hapus</button>
+      </td>
+    </tr>
+  </template>
+
+  <script src="js/config.js"></script>
+  <script src="js/umum.js"></script>
+  <script src="js/kelola-menu.js"></script>
+</body>
+</html>

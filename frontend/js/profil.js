@@ -69,6 +69,7 @@ async function simpanProfil(peristiwa) {
   } finally {
     tombolSimpan.disabled = false;
   }
+  pesan.scrollIntoView({ block: "nearest" });
 }
 
 async function hapusAkun() {
@@ -83,6 +84,7 @@ async function hapusAkun() {
   } catch (galat) {
     tanganiGalat(galat);
   }
+  pesan.scrollIntoView({ block: "nearest" });
 }
 
 formulir.addEventListener("submit", simpanProfil);

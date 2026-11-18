@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pesanan Saya - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body class="ada-navigasi-bawah">
+  <header class="kepala ringkas">
+    <div class="lebar sempit navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+    </div>
+  </header>
+
+  <main class="lebar sempit isi">
+    <section class="kartu" aria-labelledby="judul-pesanan">
+      <h1 id="judul-pesanan">Pesanan Saya</h1>
+      <p id="pesan-daftar" class="pesan" role="status">Memuat pesanan…</p>
+      <p id="belum-terdaftar" class="pemberitahuan" hidden>Untuk memesan, <a href="profil.html">daftar dulu di halaman Profil</a>.</p>
+      <p id="daftar-kosong" class="keterangan" hidden>Belum ada pesanan. <a href="buat-pesanan.html">Lihat menu</a> untuk memesan.</p>
+      <ul id="daftar-pesanan" class="daftar-pesanan"></ul>
+    </section>
+  </main>
+
+  <nav class="navigasi-bawah" aria-label="Halaman pelanggan">
+    <a href="buat-pesanan.html">Menu</a>
+    <a href="pesanan-saya.html" aria-current="page">Pesanan</a>
+    <a href="profil.html">Profil</a>
+  </nav>
+
+  <template id="templat-pesanan">
+    <li class="item-pesanan">
+      <div class="baris-pesanan">
+        <span class="nomor-pesanan"></span>
+        <span class="label-status"></span>
+      </div>
+      <p class="isi-pesanan"></p>
+      <p class="keterangan rincian-pesanan"></p>
+      <button type="button" class="tombol kecil tombol-batalkan" hidden>Batalkan</button>
+    </li>
+  </template>
+
+  <script src="js/config.js?v=2"></script>
+  <script src="js/umum.js?v=2"></script>
+  <script src="js/pesanan-saya.js?v=2"></script>
+</body>
+</html>

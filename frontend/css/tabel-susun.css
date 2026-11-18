@@ -1,0 +1,41 @@
+.tabel thead {
+  display: none;
+}
+
+.tabel tr {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--warna-garis);
+}
+
+.tabel tbody tr:last-child {
+  border-bottom: 0;
+}
+
+.tabel td {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 3px 0;
+  text-align: right;
+  border-bottom: 0;
+}
+
+.tabel td:empty {
+  display: none;
+}
+
+.tabel td[data-label]::before {
+  content: attr(data-label);
+  margin-right: auto;
+  font-size: 0.9rem;
+  color: var(--warna-redup);
+}
+
+.tabel .sel-nama,
+.tabel .sel-nomor {
+  justify-content: flex-start;
+  font-size: 1.05rem;
+  text-align: left;
+}

@@ -1,4 +1,5 @@
 const KUNCI_PELANGGAN = "pesandulu.pelanggan";
+const SELANG_SEGARKAN_MS = 10000;
 
 function formatRupiah(angka) {
   return `Rp ${angka.toLocaleString("id-ID")}`;
@@ -6,6 +7,19 @@ function formatRupiah(angka) {
 
 function formatNoHp(noHp) {
   return `${noHp.slice(0, 4)}-${noHp.slice(4, 8)}-${noHp.slice(8)}`;
+}
+
+function formatWaktu(waktu) {
+  return waktu.replace(":", ".");
+}
+
+function ringkasItems(items) {
+  return items.map((item) => `${item.jumlah}× ${item.nama}`).join(", ");
+}
+
+function isiLabelStatus(elemen, status) {
+  elemen.className = `label-status ${status.replaceAll(" ", "-")}`;
+  elemen.textContent = status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 function tampilkanPesan(elemen, teks, jenis = "") {
@@ -82,4 +96,17 @@ async function muatPelangganSaya() {
 
   lupakanPelanggan();
   return null;
+}
+
+function segarkanBerkala(segarkan) {
+  window.setInterval(() => {
+    if (!document.hidden) {
+      segarkan();
+    }
+  }, SELANG_SEGARKAN_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      segarkan();
+    }
+  });
 }

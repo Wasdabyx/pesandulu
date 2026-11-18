@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Antrean Pesanan - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/tabel-susun.css?v=2" media="(max-width: 900px)">
+</head>
+<body>
+  <header class="kepala ringkas">
+    <div class="lebar luas navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+      <nav aria-label="Halaman penjual">
+        <a href="antrean-pesanan.html" aria-current="page">Pesanan</a>
+        <a href="kelola-menu.html">Menu</a>
+        <a href="daftar-pelanggan.html">Pelanggan</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="lebar luas isi">
+    <section class="kartu" aria-labelledby="judul-daftar">
+      <div class="judul-bagian">
+        <h1 id="judul-daftar">Antrean Pesanan</h1>
+        <div class="saringan" role="group" aria-label="Saring status">
+          <button type="button" class="tombol-saring" data-status="" aria-pressed="true">Semua <span class="jumlah-saring"></span></button>
+          <button type="button" class="tombol-saring" data-status="menunggu" aria-pressed="false">Menunggu <span class="jumlah-saring"></span></button>
+          <button type="button" class="tombol-saring" data-status="diproses" aria-pressed="false">Diproses <span class="jumlah-saring"></span></button>
+          <button type="button" class="tombol-saring" data-status="siap diambil" aria-pressed="false">Siap diambil <span class="jumlah-saring"></span></button>
+          <button type="button" class="tombol-saring" data-status="selesai" aria-pressed="false">Selesai <span class="jumlah-saring"></span></button>
+        </div>
+      </div>
+      <p id="pesan-daftar" class="pesan" role="status">Memuat pesanan…</p>
+      <table class="tabel">
+        <thead>
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Pelanggan</th>
+            <th scope="col">Pesanan</th>
+            <th scope="col">Ambil</th>
+            <th scope="col">Total</th>
+            <th scope="col">Status</th>
+            <th scope="col">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="badan-tabel-pesanan"></tbody>
+      </table>
+      <p id="daftar-kosong" class="keterangan" hidden></p>
+    </section>
+  </main>
+
+  <template id="templat-baris-pesanan">
+    <tr>
+      <td class="sel-nomor"></td>
+      <td class="sel-pelanggan" data-label="Pelanggan"></td>
+      <td class="sel-isi" data-label="Pesanan"></td>
+      <td class="sel-ambil" data-label="Ambil"></td>
+      <td class="sel-harga" data-label="Total"></td>
+      <td data-label="Status"><span class="label-status"></span></td>
+      <td class="sel-aksi" data-label="Aksi"><button type="button" class="tombol utama kecil tombol-lanjut"></button></td>
+    </tr>
+  </template>
+
+  <script src="js/config.js?v=2"></script>
+  <script src="js/umum.js?v=2"></script>
+  <script src="js/antrean-pesanan.js?v=2"></script>
+</body>
+</html>

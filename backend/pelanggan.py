@@ -3,6 +3,7 @@ import re
 from flask import Blueprint, jsonify, request
 
 from data import PELANGGAN, cari, id_baru
+from pesanan import punya_pesanan_aktif
 
 PANJANG_NAMA_TERTINGGI = 50
 POLA_NO_HP = re.compile(r"08[0-9]{8,11}")
@@ -88,5 +89,7 @@ def hapus_pelanggan(id_pelanggan):
     pelanggan = cari(PELANGGAN, id_pelanggan)
     if pelanggan is None:
         return tidak_ditemukan()
+    if punya_pesanan_aktif(id_pelanggan):
+        return jsonify({"pesan": "Akun tidak bisa dihapus selama masih ada pesanan yang belum selesai."}), 400
     PELANGGAN.remove(pelanggan)
     return "", 204

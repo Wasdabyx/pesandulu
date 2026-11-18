@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menu - PesanDulu</title>
+  <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body class="ada-navigasi-bawah">
+  <header class="kepala ringkas">
+    <div class="lebar sempit navigasi">
+      <a class="merek" href="index.html">PesanDulu</a>
+    </div>
+  </header>
+
+  <main class="lebar sempit isi">
+    <section class="kartu" aria-labelledby="judul-menu">
+      <h1 id="judul-menu">Menu</h1>
+      <p id="belum-terdaftar" class="pemberitahuan" hidden>Untuk memesan, <a href="profil.html">daftar dulu di halaman Profil</a>.</p>
+      <div class="saringan" role="group" aria-label="Saring kategori">
+        <button type="button" class="tombol-saring" data-kategori="" aria-pressed="true">Semua</button>
+        <button type="button" class="tombol-saring" data-kategori="Makanan" aria-pressed="false">Makanan</button>
+        <button type="button" class="tombol-saring" data-kategori="Minuman" aria-pressed="false">Minuman</button>
+      </div>
+      <p id="pesan-menu" class="pesan" role="status">Memuat menu…</p>
+      <ul id="daftar-menu" class="daftar-menu"></ul>
+      <p id="daftar-kosong" class="keterangan" hidden></p>
+    </section>
+
+    <section id="kartu-keranjang" class="kartu" aria-labelledby="judul-keranjang" hidden>
+      <div class="judul-bagian">
+        <h2 id="judul-keranjang">Keranjang</h2>
+        <strong id="total-keranjang" class="total-keranjang"></strong>
+      </div>
+      <p id="isi-keranjang" class="keterangan"></p>
+      <form id="formulir-pesanan" class="formulir">
+        <label for="isian-waktu">Waktu ambil</label>
+        <select id="isian-waktu" name="waktu_ambil" required></select>
+
+        <div class="tumpukan-tombol">
+          <button type="submit" id="tombol-pesan" class="tombol utama" disabled>Pesan Sekarang</button>
+        </div>
+      </form>
+      <p id="pesan-keranjang" class="pesan" role="status"></p>
+    </section>
+  </main>
+
+  <nav class="navigasi-bawah" aria-label="Halaman pelanggan">
+    <a href="buat-pesanan.html" aria-current="page">Menu</a>
+    <a href="pesanan-saya.html">Pesanan</a>
+    <a href="profil.html">Profil</a>
+  </nav>
+
+  <template id="templat-item-menu">
+    <li class="item-menu">
+      <div class="teks-item">
+        <span class="nama-item"></span>
+        <span class="harga-item"></span>
+      </div>
+      <span class="label-status habis label-habis" hidden>Habis</span>
+      <button type="button" class="tombol kecil tombol-tambah" hidden>+ Tambah</button>
+      <div class="penghitung" hidden>
+        <button type="button" class="tombol-bulat tombol-kurang">&minus;</button>
+        <span class="jumlah"></span>
+        <button type="button" class="tombol-bulat tombol-lebih">+</button>
+      </div>
+    </li>
+  </template>
+
+  <script src="js/config.js?v=2"></script>
+  <script src="js/umum.js?v=2"></script>
+  <script src="js/buat-pesanan.js?v=2"></script>
+</body>
+</html>

@@ -256,6 +256,15 @@ a {
   background: none;
 }
 
+.kaki-sambut {
+  padding-bottom: 28px;
+  font-size: 0.85rem;
+}
+
+.kaki-sambut a {
+  color: #ffffff;
+}
+
 .ada-navigasi-bawah {
   padding-bottom: 76px;
 }
@@ -1216,6 +1225,10 @@ input.isian-cari {
   .sambut-kisi .status-backend {
     grid-column: 1 / -1;
     margin-top: 12px;
+  }
+
+  .lebar.kaki-sambut {
+    max-width: 980px;
   }
 }
 

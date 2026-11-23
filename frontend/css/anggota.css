@@ -1,0 +1,97 @@
+.daftar-anggota {
+  display: grid;
+  gap: 14px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kartu-anggota {
+  --kertas: var(--warna-utama-muda);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  filter: drop-shadow(0 1px 1px rgba(28, 26, 22, 0.12)) drop-shadow(0 10px 12px rgba(28, 26, 22, 0.07));
+}
+
+.kartu-anggota .tiket-bawah {
+  flex: 1;
+}
+
+.kepala-anggota {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.foto-anggota {
+  position: relative;
+  flex: none;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  background: var(--warna-kedua);
+  border-radius: 50%;
+}
+
+.foto-anggota::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  background: var(--warna-utama-tua);
+  -webkit-mask: var(--ikon-profil) center / contain no-repeat;
+  mask: var(--ikon-profil) center / contain no-repeat;
+}
+
+.foto-anggota img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.identitas-anggota {
+  min-width: 0;
+}
+
+.nama-anggota {
+  overflow-wrap: anywhere;
+}
+
+.nim-anggota {
+  margin: 2px 0 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--warna-redup);
+}
+
+.label-peran {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--warna-redup);
+}
+
+.peran-anggota {
+  margin: 2px 0 0;
+  font-family: var(--font-kedua);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.tugas-anggota {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) {
+  .daftar-anggota {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kepala-anggota {
+    min-height: 4.7rem;
+  }
+}

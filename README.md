@@ -52,6 +52,7 @@ Setiap push ke branch `main` dipasang otomatis. Back-end tidak ikut dipasang di 
 | Halaman depan | `/` | Semua |
 | Login | `/login.html` | Semua |
 | Register | `/register.html` | Semua |
+| Profil Anggota | `/anggota.html` | Semua |
 | Menu & Buat Pesanan | `/buat-pesanan.html` | Semua boleh melihat menu; memesan butuh login pelanggan |
 | Dashboard pelanggan | `/dashboard-pelanggan.html` | Pelanggan |
 | Pesanan Saya | `/pesanan-saya.html` | Pelanggan |
@@ -63,6 +64,7 @@ Setiap push ke branch `main` dipasang otomatis. Back-end tidak ikut dipasang di 
 
 Halaman pelanggan dan halaman penjual membawa ke Login kalau belum login, dan ke Dashboard yang sesuai kalau login sebagai peran lain.
 Kedua Dashboard, Menu & Buat Pesanan, Pesanan Saya, dan Antrean Pesanan mengambil data terbaru dari back-end setiap 10 detik, jadi perubahan dari perangkat lain muncul tanpa memuat ulang halaman.
+Profil Anggota memuat profil anggota kelompok. Halaman itu statis dan tidak memanggil API, jadi tetap tampil walaupun back-end belum online.
 
 ## Login
 
@@ -180,5 +182,5 @@ Situs di Vercel memakai HTTPS, dan browser menolak panggilan dari halaman HTTPS 
 
 ## Mengubah CSS atau JavaScript
 
-Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=5`, misalnya `js/umum.js?v=5`.
+Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=6`, misalnya `js/umum.js?v=6`.
 Setiap kali CSS atau JavaScript diubah, naikkan angka itu di semua berkas HTML. Alamat yang berubah membuat browser mengambil berkas yang baru, bukan salinan lama yang disimpannya.

@@ -10,7 +10,7 @@ async function mulai() {
     const data = await panggilApi("/api/status");
     tampilkanPesan(statusBackend, `Terhubung ke back-end ${data.aplikasi}. Waktu server: ${data.waktu_server}.`, "ok");
   } catch (galat) {
-    tampilkanPesan(statusBackend, galat.message, "gagal");
+    tampilkanPesan(statusBackend, galat.message, galat.belumOnline ? "" : "gagal");
   }
 }
 

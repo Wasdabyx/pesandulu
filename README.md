@@ -32,6 +32,19 @@ py -m http.server 5500 --bind 127.0.0.1
 
 Buka `http://127.0.0.1:5500` di browser.
 
+## Memasang front-end di Vercel
+
+Front-end berupa berkas statis, jadi dipasang di Vercel tanpa proses build. Pengaturan proyek di Vercel:
+
+| Pengaturan | Nilai |
+|---|---|
+| Root Directory | `frontend` |
+| Framework Preset | Other |
+| Build Command | kosong |
+| Output Directory | bawaan |
+
+Setiap push ke branch `main` dipasang otomatis. Back-end tidak ikut dipasang di Vercel.
+
 ## Halaman
 
 | Halaman | Alamat | Pengguna |
@@ -152,9 +165,20 @@ Back-end membaca environment variable berikut. Kalau tidak diisi, nilai bawaan y
 | `PESANDULU_ALLOWED_ORIGINS` | `http://127.0.0.1:5500,http://localhost:5500` | Alamat front-end yang boleh memanggil API, dipisah koma |
 | `PESANDULU_SANDI_PENJUAL` | `penjual123` | Kata sandi login penjual. Ganti sebelum aplikasi dibuka untuk umum |
 
+## Konfigurasi front-end
+
 Alamat back-end yang dipanggil front-end diatur di `frontend/js/config.js`.
+
+| Nilai | Bawaan | Dipakai saat |
+|---|---|---|
+| `BACKEND_LOKAL` | `http://127.0.0.1:5000` | Front-end dibuka dari `127.0.0.1` atau `localhost` |
+| `BACKEND_ONLINE` | `null` | Front-end dibuka dari alamat lain, misalnya domain Vercel |
+
+Selama `BACKEND_ONLINE` masih `null`, front-end yang online tidak memanggil API. Halamannya tetap tampil, dengan pesan bahwa back-end belum online.
+Kalau back-end sudah punya alamat publik, isi alamat itu di `BACKEND_ONLINE`, lalu tambahkan alamat front-end ke `PESANDULU_ALLOWED_ORIGINS` di back-end.
+Situs di Vercel memakai HTTPS, dan browser menolak panggilan dari halaman HTTPS ke alamat `http://`. Jadi untuk situs itu alamat back-end harus diawali `https://`.
 
 ## Mengubah CSS atau JavaScript
 
-Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=4`, misalnya `js/umum.js?v=4`.
+Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=5`, misalnya `js/umum.js?v=5`.
 Setiap kali CSS atau JavaScript diubah, naikkan angka itu di semua berkas HTML. Alamat yang berubah membuat browser mengambil berkas yang baru, bukan salinan lama yang disimpannya.

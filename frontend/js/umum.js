@@ -1,5 +1,6 @@
 const KUNCI_TOKEN = "pesandulu.token";
 const SELANG_SEGARKAN_MS = 10000;
+const PESAN_BELUM_ONLINE = "Back-end belum online. Halaman bisa dilihat, tetapi login, register, dan pemesanan belum bisa dipakai.";
 const HALAMAN_DASHBOARD = {
   pelanggan: "dashboard-pelanggan.html",
   penjual: "dashboard-penjual.html",
@@ -56,6 +57,11 @@ function hapusToken() {
 async function panggilApi(alamat, metode = "GET", data) {
   if (window.location.protocol === "file:") {
     throw new Error("Halaman ini dibuka langsung sebagai berkas. Jalankan server front-end (lihat README), lalu buka alamatnya di browser.");
+  }
+  if (API_BASE_URL === null) {
+    const galat = new Error(PESAN_BELUM_ONLINE);
+    galat.belumOnline = true;
+    throw galat;
   }
 
   const token = bacaToken();

@@ -4,12 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard - PesanDulu</title>
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <meta name="theme-color" content="#14452a">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body class="ada-navigasi-bawah">
-  <header class="kepala ringkas">
+  <header class="kepala">
     <div class="lebar sempit navigasi">
-      <a class="merek" href="index.html">PesanDulu</a>
+      <a class="merek" href="index.html">Pesan<span>Dulu</span></a>
     </div>
   </header>
 
@@ -30,10 +34,10 @@
       </div>
     </section>
 
-    <section class="kartu" aria-labelledby="judul-berjalan">
+    <section class="kartu polos" aria-labelledby="judul-berjalan">
       <h2 id="judul-berjalan">Pesanan yang sedang berjalan</h2>
       <ul id="daftar-berjalan" class="daftar-pesanan"></ul>
-      <p id="berjalan-kosong" class="keterangan" hidden>Tidak ada pesanan yang sedang berjalan.</p>
+      <p id="berjalan-kosong" class="keterangan tiket-kosong" hidden>Tidak ada pesanan yang sedang berjalan.</p>
       <p class="keterangan"><a href="pesanan-saya.html">Lihat semua pesanan</a></p>
     </section>
   </main>
@@ -47,17 +51,21 @@
 
   <template id="templat-pesanan">
     <li class="item-pesanan">
-      <div class="baris-pesanan">
-        <span class="nomor-pesanan"></span>
-        <span class="label-status"></span>
+      <div class="tiket-atas">
+        <div class="baris-pesanan">
+          <span class="nomor-pesanan"></span>
+          <span class="label-status"></span>
+        </div>
+        <p class="isi-pesanan"></p>
       </div>
-      <p class="isi-pesanan"></p>
-      <p class="keterangan rincian-pesanan"></p>
+      <div class="tiket-bawah">
+        <p class="rincian-pesanan"><span class="bagian-ambil">Ambil <strong class="jam-ambil"></strong></span><span class="pemisah-rincian"> · </span><strong class="total-pesanan"></strong></p>
+      </div>
     </li>
   </template>
 
-  <script src="js/config.js?v=3"></script>
-  <script src="js/umum.js?v=3"></script>
-  <script src="js/dashboard-pelanggan.js?v=3"></script>
+  <script src="js/config.js?v=4"></script>
+  <script src="js/umum.js?v=4"></script>
+  <script src="js/dashboard-pelanggan.js?v=4"></script>
 </body>
 </html>

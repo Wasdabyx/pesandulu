@@ -20,7 +20,9 @@ function buatBaris(baris, jumlahTerbanyak) {
 function tampilkan(rekap) {
   const jumlahTerbanyak = rekap.menu_terlaris.length > 0 ? rekap.menu_terlaris[0].jumlah : 0;
   for (const kotak of ringkasan.querySelectorAll("[data-status]")) {
-    kotak.querySelector(".angka").textContent = rekap.jumlah_per_status[kotak.dataset.status];
+    const jumlah = rekap.jumlah_per_status[kotak.dataset.status];
+    kotak.querySelector(".angka").textContent = jumlah;
+    kotak.classList.toggle("ada", jumlah > 0);
   }
   totalPenjualan.textContent = formatRupiah(rekap.total_penjualan);
   ringkasan.hidden = false;

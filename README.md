@@ -112,6 +112,35 @@ Aturan pesanan:
 
 Data awal ada di `backend/data.py`. Perubahan hanya tersimpan di memori, jadi data kembali ke isi awal dan semua sesi login berakhir setiap back-end dijalankan ulang.
 
+## Tampilan
+
+Warna dan font diatur lewat variabel di bagian paling atas `frontend/css/style.css`. Mengganti nilainya di sana mengubah semua halaman.
+
+| Variabel | Kode | Dipakai untuk |
+|---|---|---|
+| `--warna-utama` | `#1d6b3b` | Warna utama: tombol utama, tautan, status siap diambil |
+| `--warna-utama-tua` | `#14452a` | Kepala halaman; latar halaman depan, Login, dan Register |
+| `--warna-utama-muda` | `#e2f1e3` | Latar lembut: status diproses, tombol tambah, pesan berhasil |
+| `--warna-kedua` | `#f8c12c` | Warna kedua: separuh nama aplikasi, penanda navigasi, nomor langkah, kotak Penjualan |
+| `--warna-kedua-muda` | `#fff3cc` | Latar lembut: status menunggu, pemberitahuan |
+| `--warna-kedua-tua` | `#7a5200` | Tulisan di atas latar kuning muda |
+| `--warna-gagal` | `#bf2f1f` | Pesan galat, tombol hapus, label habis |
+| `--warna-gagal-muda` | `#fde9e5` | Latar pesan galat |
+| `--warna-teks` | `#1c1a16` | Tulisan |
+| `--warna-redup` | `#625c52` | Tulisan keterangan |
+| `--warna-latar` | `#f1f5ee` | Latar halaman |
+| `--warna-kartu` | `#ffffff` | Latar kartu dan tiket pesanan |
+| `--warna-garis` | `#dbe2d6` | Garis pemisah |
+| `--warna-garis-isian` | `#7c8577` | Garis tepi isian formulir |
+
+| Font | Variabel | Dipakai untuk |
+|---|---|---|
+| Plus Jakarta Sans | `--font-utama` | Font utama: isi halaman, formulir, tombol, tabel |
+| Bricolage Grotesque | `--font-kedua` | Font kedua: nama aplikasi, judul, dan angka besar (jam ambil, total, nomor pesanan) |
+
+Berkas kedua font ada di `frontend/fonts/`, diambil dari Google Fonts, jadi tampilan sama di semua perangkat tanpa bergantung pada layanan luar. Keduanya berlisensi SIL Open Font License 1.1; naskah lisensinya ada di folder yang sama.
+Ikon navigasi, gambar kategori menu, dan gambar daun ditulis sebagai SVG di dalam `style.css`. Ikon tab browser ada di `frontend/favicon.svg`.
+
 ## Konfigurasi back-end
 
 Back-end membaca environment variable berikut. Kalau tidak diisi, nilai bawaan yang dipakai.
@@ -127,5 +156,5 @@ Alamat back-end yang dipanggil front-end diatur di `frontend/js/config.js`.
 
 ## Mengubah CSS atau JavaScript
 
-Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=3`, misalnya `js/umum.js?v=3`.
+Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=4`, misalnya `js/umum.js?v=4`.
 Setiap kali CSS atau JavaScript diubah, naikkan angka itu di semua berkas HTML. Alamat yang berubah membuat browser mengambil berkas yang baru, bukan salinan lama yang disimpannya.

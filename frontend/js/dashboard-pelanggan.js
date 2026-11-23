@@ -22,7 +22,9 @@ function tampilkan(pelanggan, daftarPesanan) {
   const berjalan = daftarPesanan.filter((pesanan) => pesanan.status !== "selesai").sort(urutanAmbil);
   sapaan.textContent = `Halo, ${pelanggan.nama}.`;
   for (const kotak of ringkasan.querySelectorAll("[data-status]")) {
-    kotak.querySelector(".angka").textContent = daftarPesanan.filter((pesanan) => pesanan.status === kotak.dataset.status).length;
+    const jumlah = daftarPesanan.filter((pesanan) => pesanan.status === kotak.dataset.status).length;
+    kotak.querySelector(".angka").textContent = jumlah;
+    kotak.classList.toggle("ada", jumlah > 0);
   }
   ringkasan.hidden = false;
   daftarBerjalan.replaceChildren(...berjalan.map(buatItem));

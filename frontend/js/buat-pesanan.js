@@ -69,6 +69,7 @@ function buatItem(menu) {
   const tombolKurang = elemen.querySelector(".tombol-kurang");
   const tombolLebih = elemen.querySelector(".tombol-lebih");
 
+  elemen.dataset.kategori = menu.kategori;
   elemen.querySelector(".nama-item").textContent = menu.nama;
   elemen.querySelector(".harga-item").textContent = formatRupiah(menu.harga);
   tombolTambah.setAttribute("aria-label", `Tambah ${menu.nama} ke keranjang`);

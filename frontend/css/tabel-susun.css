@@ -4,7 +4,7 @@
 
 .tabel tr {
   display: block;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--warna-garis);
 }
 
@@ -28,14 +28,16 @@
 
 .tabel td[data-label]::before {
   content: attr(data-label);
+  flex: none;
   margin-right: auto;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--warna-redup);
 }
 
 .tabel .sel-nama,
 .tabel .sel-nomor {
   justify-content: flex-start;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   text-align: left;
 }

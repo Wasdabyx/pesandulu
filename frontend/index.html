@@ -4,35 +4,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PesanDulu</title>
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <meta name="theme-color" content="#14452a">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
-<body>
-  <header class="kepala">
-    <div class="lebar">
-      <h1>PesanDulu</h1>
+<body class="sambut">
+  <main class="lebar sempit isi sambut-kisi">
+    <header class="sambutan">
+      <h1 class="merek-besar">Pesan<span>Dulu</span></h1>
       <p>Pre-order makanan dan minuman stand market day.</p>
-    </div>
-  </header>
+    </header>
 
-  <main class="lebar isi">
-    <section class="kartu">
-      <h2>Mulai</h2>
-      <p class="keterangan">Pesan dari ponsel, lalu ambil di stand pada jam yang Anda pilih.</p>
-      <div class="baris-tombol">
+    <section class="kartu" aria-labelledby="judul-cara">
+      <h2 id="judul-cara">Cara pesan</h2>
+      <ol class="langkah">
+        <li>Pilih menu dari ponsel.</li>
+        <li>Tentukan jam ambil.</li>
+        <li>Ambil di stand pada jam itu.</li>
+      </ol>
+      <div class="baris-tombol rata">
         <a class="tombol utama" href="login.html">Login</a>
         <a class="tombol" href="register.html">Register</a>
       </div>
       <p class="keterangan"><a href="buat-pesanan.html">Lihat menu tanpa login</a></p>
     </section>
 
-    <section class="kartu">
-      <h2>Status back-end</h2>
+    <section class="status-backend" aria-labelledby="judul-status">
+      <h2 id="judul-status">Status back-end</h2>
       <p id="status-backend" class="pesan" role="status">Memeriksa back-end…</p>
     </section>
   </main>
 
-  <script src="js/config.js?v=3"></script>
-  <script src="js/umum.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/config.js?v=4"></script>
+  <script src="js/umum.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>

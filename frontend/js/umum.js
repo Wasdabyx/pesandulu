@@ -27,10 +27,12 @@ function isiLabelStatus(elemen, status) {
 }
 
 function isiPesanan(elemen, pesanan) {
+  elemen.dataset.status = pesanan.status;
   elemen.querySelector(".nomor-pesanan").textContent = `#${pesanan.id}`;
   isiLabelStatus(elemen.querySelector(".label-status"), pesanan.status);
   elemen.querySelector(".isi-pesanan").textContent = ringkasItems(pesanan.items);
-  elemen.querySelector(".rincian-pesanan").textContent = `Ambil ${formatWaktu(pesanan.waktu_ambil)} · ${formatRupiah(pesanan.total)}`;
+  elemen.querySelector(".jam-ambil").textContent = formatWaktu(pesanan.waktu_ambil);
+  elemen.querySelector(".total-pesanan").textContent = formatRupiah(pesanan.total);
 }
 
 function tampilkanPesan(elemen, teks, jenis = "") {

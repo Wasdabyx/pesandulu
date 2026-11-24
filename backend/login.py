@@ -1,15 +1,12 @@
 import hmac
-import os
 
 from flask import Blueprint, jsonify, request
 from werkzeug.security import check_password_hash
 
 from data import PELANGGAN, cari, teks_utf8_sah
+from konfigurasi import SANDI_PENJUAL
 from pelanggan import rapikan_no_hp, tanpa_sandi
 from sesi import SESI, baca_token, buat_sesi, sesi_sekarang
-
-SANDI_PENJUAL_BAWAAN = "penjual123"
-SANDI_PENJUAL = os.environ.get("PESANDULU_SANDI_PENJUAL") or SANDI_PENJUAL_BAWAAN
 
 login_bp = Blueprint("login", __name__, url_prefix="/api")
 

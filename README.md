@@ -10,17 +10,41 @@ Proyek mata kuliah CAK3EAB3 Komputasi Awan dan Terdistribusi.
 | `backend/` | API dengan Python dan Flask. Data disimpan di memori sebagai list of dict, tanpa database. |
 | `frontend/` | Halaman statis (HTML, CSS, JavaScript) yang memanggil API lewat HTTP. |
 
+## Repositori
+
+Seluruh kode PesanDulu, back-end dan front-end, disimpan di satu repositori Git dengan satu branch, `main`. Setiap tempat pemasangan mengambil kodenya dari repositori ini. Yang berbeda di tiap tempat hanya konfigurasinya.
+
+| Tempat pemasangan | Yang dijalankan | Konfigurasi |
+|---|---|---|
+| Laptop anggota, untuk pengembangan | Back-end dan front-end | `backend/.env` dan `frontend/js/config.js` |
+| Vercel | Front-end | `frontend/js/config.js` |
+
+Berkas `.env` dan folder `.venv` sengaja tidak ikut Git. Keduanya dibuat di tiap tempat pemasangan dari `.env.example` dan `requirements.txt`. Daftar lengkap yang tidak ikut Git ada di `.gitignore`.
+
 ## Menjalankan di Windows
 
-Butuh Python 3.9 atau lebih baru.
+Back-end butuh Python 3.11 atau lebih baru. Semua perintah back-end dijalankan dari folder `backend`. Pilih salah satu cara.
 
-Back-end, dari folder `backend`:
+Cara 1, dengan conda, di Anaconda Prompt atau terminal lain yang mengenal perintah `conda`:
+
+```
+conda env create -f environment.yml
+conda activate pesandulu
+copy .env.example .env
+python app.py
+```
+
+Cara 2, dengan venv:
 
 ```
 py -m venv .venv
 .venv\Scripts\python -m pip install -r requirements.txt
+copy .env.example .env
 .venv\Scripts\python app.py
 ```
+
+Pemasangan paket dan `copy` cukup sekali. Sesudah itu back-end dijalankan dengan baris terakhir saja. Pada cara 1, `conda activate pesandulu` diulang setiap membuka terminal baru.
+Kalau `requirements.txt` berubah, jalankan lagi `conda env update -f environment.yml` atau baris `pip install` tadi.
 
 Back-end berjalan di `http://127.0.0.1:5000`. Coba buka `http://127.0.0.1:5000/api/status`.
 
@@ -29,6 +53,8 @@ Front-end, di terminal kedua, dari folder `frontend`:
 ```
 py -m http.server 5500 --bind 127.0.0.1
 ```
+
+Kalau perintah `py` tidak dikenali, misalnya di Anaconda Prompt, ganti `py` dengan `python`.
 
 Buka `http://127.0.0.1:5500` di browser.
 
@@ -73,7 +99,7 @@ Profil Anggota memuat profil anggota kelompok. Halaman itu statis dan tidak mema
 | Penjual | Kata sandi | `penjual123` |
 | Pelanggan | No. HP dan kata sandi | `081200000001` sampai `081200000004`, kata sandi `pelanggan123` |
 
-Pelanggan baru membuat akun di halaman Register. Kata sandi penjual diatur lewat `PESANDULU_SANDI_PENJUAL`.
+Pelanggan baru membuat akun di halaman Register. Kata sandi penjual diatur lewat `PESANDULU_SANDI_PENJUAL`; `penjual123` adalah nilai di `backend/.env.example`.
 
 Setelah login, back-end memberi token. Front-end menyimpan token itu di `localStorage` dan mengirimnya di setiap permintaan lewat header `Authorization: Bearer <token>`.
 Sesi disimpan di memori back-end dan berakhir saat logout atau saat back-end dijalankan ulang.
@@ -156,16 +182,41 @@ Warna dan font diatur lewat variabel di bagian paling atas `frontend/css/style.c
 Berkas kedua font ada di `frontend/fonts/`, diambil dari Google Fonts, jadi tampilan sama di semua perangkat tanpa bergantung pada layanan luar. Keduanya berlisensi SIL Open Font License 1.1; naskah lisensinya ada di folder yang sama.
 Ikon navigasi, gambar kategori menu, dan gambar daun ditulis sebagai SVG di dalam `style.css`. Ikon tab browser ada di `frontend/favicon.svg`.
 
+## Dependensi
+
+Semua paket Python yang dibutuhkan back-end ditulis di `backend/requirements.txt`, masing-masing dengan versi yang pasti.
+
+| Paket | Dipakai untuk |
+|---|---|
+| Flask | Kerangka API |
+| flask-cors | Izin akses dari alamat front-end (CORS) |
+| python-dotenv | Membaca berkas `.env` |
+| Werkzeug | Hash kata sandi dan galat HTTP |
+
+Lima paket lain di berkas itu (blinker, click, itsdangerous, Jinja2, MarkupSafe) dibutuhkan oleh Flask. Versinya ikut dikunci supaya setiap pemasangan menghasilkan susunan paket yang sama.
+
+`backend/environment.yml` membuat lingkungan conda bernama `pesandulu` berisi Python 3.13, lalu memasang paket dari `requirements.txt`. Jadi daftar paket hanya ditulis di satu tempat.
+Paket dipasang di lingkungan conda itu atau di folder `.venv`, bukan di Python milik sistem. Untuk menambah paket atau menaikkan versinya, ubah `requirements.txt`, lalu pasang lagi.
+Daftar paket ini diuji dengan Python 3.11 sampai 3.14.
+
+Front-end tidak memakai paket atau pustaka dari luar, jadi tidak membutuhkan `package.json`. Dua font yang dipakai disimpan di `frontend/fonts/`, dan tidak ada berkas yang diambil dari CDN.
+
 ## Konfigurasi back-end
 
-Back-end membaca environment variable berikut. Kalau tidak diisi, nilai bawaan yang dipakai.
+Back-end mengambil semua konfigurasinya dari environment variable. Di dalam kode tidak ada nilai bawaan.
 
-| Variabel | Bawaan | Kegunaan |
+| Variabel | Nilai di `.env.example` | Kegunaan |
 |---|---|---|
-| `PESANDULU_HOST` | `127.0.0.1` | Alamat tempat back-end menerima permintaan |
+| `PESANDULU_HOST` | `127.0.0.1` | Alamat IP tempat back-end menerima permintaan. `127.0.0.1` berarti hanya dari komputer itu sendiri, `0.0.0.0` berarti dari mana saja |
 | `PESANDULU_PORT` | `5000` | Port back-end |
-| `PESANDULU_ALLOWED_ORIGINS` | `http://127.0.0.1:5500,http://localhost:5500` | Alamat front-end yang boleh memanggil API, dipisah koma |
+| `PESANDULU_ALLOWED_ORIGINS` | `http://127.0.0.1:5500,http://localhost:5500` | Alamat front-end yang boleh memanggil API, dipisah koma, tanpa nama halaman di belakangnya |
 | `PESANDULU_SANDI_PENJUAL` | `penjual123` | Kata sandi login penjual. Ganti sebelum aplikasi dibuka untuk umum |
+
+Untuk pengembangan di laptop, variabel itu ditulis di berkas `backend/.env`. Berkas `backend/.env.example` berisi konfigurasi pengembangan dan tinggal disalin menjadi `.env`.
+Berkas `.env` tidak ikut Git, jadi setiap tempat pemasangan punya konfigurasinya sendiri sedangkan kodenya sama.
+Environment variable yang diisi langsung di terminal atau di server mengalahkan isi `.env`.
+Kalau ada variabel yang belum diisi atau nilainya salah, back-end tidak mau berjalan dan menyebutkan variabel mana yang harus diperbaiki.
+Di berkas `.env`, nilai yang memuat spasi atau tanda `#` ditulis di antara tanda kutip tunggal, misalnya `PESANDULU_SANDI_PENJUAL='sate #1 enak'`.
 
 ## Konfigurasi front-end
 

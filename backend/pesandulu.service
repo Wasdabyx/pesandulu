@@ -1,0 +1,19 @@
+[Unit]
+Description=Back-end PesanDulu
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/pesandulu/backend
+ExecStart=/home/ubuntu/pesandulu/backend/.venv/bin/python app.py
+SyslogIdentifier=pesandulu
+Restart=on-failure
+RestartSec=5
+RestartPreventExitStatus=78
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

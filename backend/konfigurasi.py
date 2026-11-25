@@ -1,13 +1,22 @@
 import ipaddress
 import os
 import re
+import sys
 import unicodedata
 from pathlib import Path
+
+KODE_KELUAR_SALAH_KONFIGURASI = 78
+
+
+def berhenti(pesan):
+    print(pesan, file=sys.stderr, flush=True)
+    raise SystemExit(KODE_KELUAR_SALAH_KONFIGURASI)
+
 
 try:
     from dotenv import dotenv_values
 except ModuleNotFoundError:
-    raise SystemExit("Paket python-dotenv belum terpasang. Pasang semua paket di requirements.txt, lihat README.") from None
+    berhenti("Paket python-dotenv belum terpasang. Pasang semua paket di requirements.txt, lihat README.")
 
 FOLDER = Path(__file__).resolve().parent
 BERKAS_ENV = FOLDER / ".env"
@@ -66,7 +75,9 @@ def baca_berkas(berkas):
     try:
         return dotenv_values(berkas, interpolate=False)
     except UnicodeDecodeError:
-        raise SystemExit(f"Berkas {berkas.name} tidak bisa dibaca. Simpan berkas itu sebagai teks UTF-8.") from None
+        berhenti(f"Berkas {berkas.name} tidak bisa dibaca. Simpan berkas itu sebagai teks UTF-8.")
+    except OSError as galat:
+        berhenti(f"Berkas {berkas.name} tidak bisa dibuka: {galat.strerror}. Periksa izin berkas itu.")
 
 
 def muat():
@@ -83,7 +94,7 @@ def muat():
         except ValueError as galat:
             masalah.append(f"{nama} {galat}")
     if masalah:
-        raise SystemExit(
+        berhenti(
             "Konfigurasi back-end belum benar:\n"
             + "".join(f"  - {m}\n" for m in masalah)
             + "Isi lewat environment variable, atau salin .env.example menjadi .env di folder backend lalu sesuaikan isinya."

@@ -18,6 +18,7 @@ Seluruh kode PesanDulu, back-end dan front-end, disimpan di satu repositori Git 
 |---|---|---|
 | Laptop anggota, untuk pengembangan | Back-end dan front-end | `backend/.env` dan `frontend/js/config.js` |
 | Vercel | Front-end | `frontend/js/config.js` |
+| Server Linux, misalnya instance EC2 | Back-end sebagai layanan systemd | `backend/.env` |
 
 Berkas `.env` dan folder `.venv` sengaja tidak ikut Git. Keduanya dibuat di tiap tempat pemasangan dari `.env.example` dan `requirements.txt`. Daftar lengkap yang tidak ikut Git ada di `.gitignore`.
 
@@ -46,7 +47,7 @@ copy .env.example .env
 Pemasangan paket dan `copy` cukup sekali. Sesudah itu back-end dijalankan dengan baris terakhir saja. Pada cara 1, `conda activate pesandulu` diulang setiap membuka terminal baru.
 Kalau `requirements.txt` berubah, jalankan lagi `conda env update -f environment.yml` atau baris `pip install` tadi.
 
-Back-end berjalan di `http://127.0.0.1:5000`. Coba buka `http://127.0.0.1:5000/api/status`.
+Back-end berjalan di `http://127.0.0.1:5000`. Coba buka `http://127.0.0.1:5000/api/status`. Hentikan back-end dengan Ctrl+C.
 
 Front-end, di terminal kedua, dari folder `frontend`:
 
@@ -70,6 +71,73 @@ Front-end berupa berkas statis, jadi dipasang di Vercel tanpa proses build. Peng
 | Output Directory | bawaan |
 
 Setiap push ke branch `main` dipasang otomatis. Back-end tidak ikut dipasang di Vercel.
+
+## Memasang back-end di server Linux
+
+Di server, misalnya instance EC2, back-end dijalankan sebagai layanan systemd bernama `pesandulu`. Layanan itu ikut menyala setiap server dinyalakan, dan dijalankan lagi kalau programnya mati mendadak.
+Perintah berikut untuk Ubuntu 24.04 atau lebih baru dengan pengguna `ubuntu`, dimulai dari folder home pengguna itu.
+
+```
+sudo apt update
+sudo apt install -y git python3-venv
+git clone https://github.com/Wasdabyx/pesandulu.git
+cd pesandulu/backend
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+cp .env.example .env
+chmod 600 .env
+```
+
+Perintah `chmod 600` membuat `.env` hanya bisa dibaca oleh pengguna itu. Buka `.env`, misalnya dengan `nano .env`, lalu ganti isinya dengan nilai untuk server.
+
+| Variabel | Nilai di server |
+|---|---|
+| `PESANDULU_HOST` | `0.0.0.0`, supaya back-end bisa dipanggil dari luar server |
+| `PESANDULU_PORT` | `5000`, sama dengan contoh |
+| `PESANDULU_ALLOWED_ORIGINS` | Alamat front-end yang sudah online, yaitu `http://` diikuti alamat publik server front-end |
+| `PESANDULU_SANDI_PENJUAL` | Kata sandi baru, bukan kata sandi contoh |
+
+Sesudah itu, masih dari folder `backend`, pasang layanannya.
+
+```
+sudo cp pesandulu.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now pesandulu
+systemctl status pesandulu
+```
+
+Baris `Active: active (running)` berarti back-end sudah berjalan. Dari server itu sendiri, coba `curl http://127.0.0.1:5000/api/status`.
+Dari luar, back-end dibuka di port 5000 pada alamat publik server, setelah port itu diizinkan di firewall server, misalnya di security group EC2.
+
+| Perintah | Kegunaan |
+|---|---|
+| `systemctl status pesandulu` | Melihat keadaan layanan dan beberapa baris catatan terakhir |
+| `journalctl -u pesandulu -n 50` | Melihat 50 baris catatan terakhir |
+| `sudo systemctl restart pesandulu` | Menjalankan ulang layanan, misalnya setelah `.env` diubah |
+| `sudo systemctl stop pesandulu` | Menghentikan layanan |
+
+Data disimpan di memori, jadi setiap kali layanan dijalankan ulang, data kembali ke data awal.
+Untuk memperbarui kode di server, jalankan `git pull`, lalu `.venv/bin/python -m pip install -r requirements.txt`, lalu `sudo systemctl restart pesandulu`.
+Kalau `pesandulu.service` ikut berubah, salin lagi berkas itu ke `/etc/systemd/system/` dan jalankan `sudo systemctl daemon-reload` sebelum `restart`.
+
+Isi `backend/pesandulu.service`:
+
+| Baris | Arti |
+|---|---|
+| `Description=Back-end PesanDulu` | Keterangan yang tampil di `systemctl status` |
+| `After=network.target` | Layanan dimulai setelah jaringan server disiapkan |
+| `User=ubuntu` | Program berjalan sebagai pengguna `ubuntu`, bukan root |
+| `WorkingDirectory=/home/ubuntu/pesandulu/backend` | Folder tempat program dijalankan |
+| `ExecStart=/home/ubuntu/pesandulu/backend/.venv/bin/python app.py` | Perintah yang dijalankan: Python dari `.venv` menjalankan `app.py` |
+| `SyslogIdentifier=pesandulu` | Nama program di catatan |
+| `Restart=on-failure` dan `RestartSec=5` | Kalau program mati karena galat, systemd menjalankannya lagi 5 detik kemudian |
+| `RestartPreventExitStatus=78` | Pengecualian: kalau konfigurasi salah, back-end berhenti dengan kode 78 dan tidak dijalankan lagi sampai diperbaiki |
+| `NoNewPrivileges=true` | Program tidak bisa memperoleh hak root, misalnya lewat `sudo` |
+| `ProtectSystem=strict` dan `ProtectHome=read-only` | Program hanya bisa membaca berkas di server, tidak bisa mengubahnya |
+| `PrivateTmp=true` | Program mendapat folder `/tmp` sendiri |
+| `WantedBy=multi-user.target` | Dengan `systemctl enable`, layanan dijalankan setiap server dinyalakan |
+
+Kalau repositori disalin ke folder lain atau pengguna servernya bukan `ubuntu`, sesuaikan `User`, `WorkingDirectory`, dan `ExecStart` sebelum berkas itu disalin ke `/etc/systemd/system/`.
 
 ## Halaman
 
@@ -191,8 +259,10 @@ Semua paket Python yang dibutuhkan back-end ditulis di `backend/requirements.txt
 | Flask | Kerangka API |
 | flask-cors | Izin akses dari alamat front-end (CORS) |
 | python-dotenv | Membaca berkas `.env` |
+| waitress | Server HTTP yang menjalankan aplikasi |
 | Werkzeug | Hash kata sandi dan galat HTTP |
 
+Back-end dijalankan oleh waitress dengan satu utas pekerja. Permintaan dilayani satu per satu, sehingga data di memori tidak diubah oleh dua permintaan pada saat yang sama. Isi satu permintaan dibatasi 1 MiB.
 Lima paket lain di berkas itu (blinker, click, itsdangerous, Jinja2, MarkupSafe) dibutuhkan oleh Flask. Versinya ikut dikunci supaya setiap pemasangan menghasilkan susunan paket yang sama.
 
 `backend/environment.yml` membuat lingkungan conda bernama `pesandulu` berisi Python 3.13, lalu memasang paket dari `requirements.txt`. Jadi daftar paket hanya ditulis di satu tempat.

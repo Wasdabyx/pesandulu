@@ -1,6 +1,9 @@
 const KUNCI_TOKEN = "pesandulu.token";
 const SELANG_SEGARKAN_MS = 10000;
 const PESAN_BELUM_ONLINE = "Back-end belum online. Halaman bisa dilihat, tetapi login, register, dan pemesanan belum bisa dipakai.";
+const PESAN_TIDAK_TERHUBUNG = API_BASE_URL === BACKEND_LOKAL
+  ? `Back-end di ${BACKEND_LOKAL} tidak bisa dihubungi. Jalankan back-end, lalu muat ulang halaman ini.`
+  : "Server PesanDulu tidak bisa dihubungi. Periksa sambungan internet, lalu muat ulang halaman ini.";
 const HALAMAN_DASHBOARD = {
   pelanggan: "dashboard-pelanggan.html",
   penjual: "dashboard-penjual.html",
@@ -78,7 +81,7 @@ async function panggilApi(alamat, metode = "GET", data) {
   try {
     jawaban = await fetch(`${API_BASE_URL}${alamat}`, pilihan);
   } catch (galat) {
-    throw new Error(`Back-end di ${API_BASE_URL} tidak bisa dihubungi. Jalankan back-end, lalu muat ulang halaman ini.`);
+    throw new Error(PESAN_TIDAK_TERHUBUNG);
   }
 
   const teks = await jawaban.text();

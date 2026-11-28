@@ -3,6 +3,11 @@
 Aplikasi web pre-order makanan dan minuman untuk stand kelompok di market day kampus.
 Proyek mata kuliah CAK3EAB3 Komputasi Awan dan Terdistribusi.
 
+| Bagian | Alamat |
+|---|---|
+| Situs (front-end di Vercel) | https://pesandulu.vercel.app |
+| Back-end (di PythonAnywhere) | https://muhammadhunafa.pythonanywhere.com/api/status |
+
 ## Struktur
 
 | Folder | Isi |
@@ -216,7 +221,7 @@ Kalau repositori disalin ke folder lain atau pengguna servernya bukan `ubuntu`, 
 
 Halaman pelanggan dan halaman penjual membawa ke Login kalau belum login, dan ke Dashboard yang sesuai kalau login sebagai peran lain.
 Kedua Dashboard, Menu & Buat Pesanan, Pesanan Saya, dan Antrean Pesanan mengambil data terbaru dari back-end setiap 10 detik, jadi perubahan dari perangkat lain muncul tanpa memuat ulang halaman.
-Profil Anggota memuat profil anggota kelompok. Halaman itu statis dan tidak memanggil API, jadi tetap tampil walaupun back-end belum online.
+Profil Anggota memuat profil anggota kelompok. Halaman itu statis dan tidak memanggil API, jadi tetap tampil walaupun back-end tidak bisa dihubungi.
 
 ## Login
 
@@ -225,7 +230,7 @@ Profil Anggota memuat profil anggota kelompok. Halaman itu statis dan tidak mema
 | Penjual | Kata sandi | `penjual123` |
 | Pelanggan | No. HP dan kata sandi | `081200000001` sampai `081200000004`, kata sandi `pelanggan123` |
 
-Pelanggan baru membuat akun di halaman Register. Kata sandi penjual diatur lewat `PESANDULU_SANDI_PENJUAL`; `penjual123` adalah nilai di `backend/.env.example`.
+Pelanggan baru membuat akun di halaman Register. Kata sandi penjual diatur lewat `PESANDULU_SANDI_PENJUAL`; `penjual123` adalah nilai di `backend/.env.example`. Di back-end yang online, nilai itu diganti dengan kata sandi lain.
 
 Setelah login, back-end memberi token. Front-end menyimpan token itu di `localStorage` dan mengirimnya di setiap permintaan lewat header `Authorization: Bearer <token>`.
 Sesi disimpan di memori back-end dan berakhir saat logout atau saat back-end dijalankan ulang.
@@ -362,13 +367,13 @@ Alamat back-end yang dipanggil front-end diatur di `frontend/js/config.js`.
 | Nilai | Bawaan | Dipakai saat |
 |---|---|---|
 | `BACKEND_LOKAL` | `http://127.0.0.1:5000` | Front-end dibuka dari `127.0.0.1` atau `localhost` |
-| `BACKEND_ONLINE` | `null` | Front-end dibuka dari alamat lain, misalnya domain Vercel |
+| `BACKEND_ONLINE` | `https://muhammadhunafa.pythonanywhere.com` | Front-end dibuka dari alamat lain, misalnya domain Vercel |
 
-Selama `BACKEND_ONLINE` masih `null`, front-end yang online tidak memanggil API. Halamannya tetap tampil, dengan pesan bahwa back-end belum online.
-Kalau back-end sudah punya alamat publik, isi alamat itu di `BACKEND_ONLINE`, lalu tambahkan alamat front-end ke `PESANDULU_ALLOWED_ORIGINS` di back-end.
+`BACKEND_ONLINE` berisi alamat back-end di PythonAnywhere, ditulis tanpa garis miring di akhir. Alamat front-end yang memanggilnya harus terdaftar di `PESANDULU_ALLOWED_ORIGINS` di back-end itu.
+Kalau `BACKEND_ONLINE` diisi `null`, front-end yang online tidak memanggil API. Halamannya tetap tampil, dengan pesan bahwa back-end belum online.
 Situs di Vercel memakai HTTPS, dan browser menolak panggilan dari halaman HTTPS ke alamat `http://`. Jadi untuk situs itu alamat back-end harus diawali `https://`.
 
 ## Mengubah CSS atau JavaScript
 
-Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=6`, misalnya `js/umum.js?v=6`.
+Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=7`, misalnya `js/umum.js?v=7`.
 Setiap kali CSS atau JavaScript diubah, naikkan angka itu di semua berkas HTML. Alamat yang berubah membuat browser mengambil berkas yang baru, bukan salinan lama yang disimpannya.

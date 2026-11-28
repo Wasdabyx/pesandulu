@@ -6,6 +6,7 @@ from sesi import wajib_login
 KATEGORI = ("Makanan", "Minuman")
 PANJANG_NAMA_TERTINGGI = 50
 HARGA_TERTINGGI = 1_000_000
+STOK_TERTINGGI = 999
 
 menu_bp = Blueprint("menu", __name__, url_prefix="/api/menu")
 
@@ -19,6 +20,7 @@ def periksa_isian(kiriman, menu_lama=None):
     harga = isian.get("harga")
     kategori = isian.get("kategori")
     tersedia = isian.get("tersedia")
+    stok = isian.get("stok")
 
     if not isinstance(nama, str) or not nama.strip():
         return None, "Nama menu wajib diisi."
@@ -34,8 +36,20 @@ def periksa_isian(kiriman, menu_lama=None):
         return None, "Kategori harus Makanan atau Minuman."
     if type(tersedia) is not bool:
         return None, "Tersedia harus bernilai true atau false."
+    if stok is not None and (type(stok) is not int or not 0 <= stok <= STOK_TERTINGGI):
+        return None, f"Stok harus berupa bilangan bulat dari 0 sampai {STOK_TERTINGGI}, atau dikosongkan kalau tidak dibatasi."
 
-    return {"nama": nama, "harga": harga, "kategori": kategori, "tersedia": tersedia}, None
+    return {"nama": nama, "harga": harga, "kategori": kategori, "tersedia": tersedia, "stok": stok}, None
+
+
+def habis(menu):
+    return not menu["tersedia"] or menu["stok"] == 0
+
+
+def ubah_stok(id_menu, selisih):
+    menu = cari(MENU, id_menu)
+    if menu is not None and menu["stok"] is not None:
+        menu["stok"] = min(STOK_TERTINGGI, menu["stok"] + selisih)
 
 
 def tidak_ditemukan():

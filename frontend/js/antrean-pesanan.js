@@ -23,7 +23,8 @@ function buatBaris(pesanan) {
   baris.dataset.id = pesanan.id;
   baris.querySelector(".sel-nomor").textContent = `#${pesanan.id}`;
   baris.querySelector(".sel-pelanggan").textContent = pesanan.nama_pelanggan || "(akun dihapus)";
-  baris.querySelector(".sel-isi").textContent = ringkasItems(pesanan.items);
+  baris.querySelector(".isi-baris").textContent = ringkasItems(pesanan.items);
+  isiCatatan(baris.querySelector(".catatan-pesanan"), pesanan.catatan);
   baris.querySelector(".sel-ambil").textContent = formatWaktu(pesanan.waktu_ambil);
   baris.querySelector(".sel-harga").textContent = formatRupiah(pesanan.total);
   isiLabelStatus(baris.querySelector(".label-status"), pesanan.status);

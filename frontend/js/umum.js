@@ -30,11 +30,21 @@ function isiLabelStatus(elemen, status) {
   elemen.textContent = status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+function isiCatatan(elemen, catatan) {
+  elemen.hidden = catatan === "";
+  elemen.textContent = catatan === "" ? "" : `Catatan: ${catatan}`;
+}
+
+function menuHabis(menu) {
+  return !menu.tersedia || menu.stok === 0;
+}
+
 function isiPesanan(elemen, pesanan) {
   elemen.dataset.status = pesanan.status;
   elemen.querySelector(".nomor-pesanan").textContent = `#${pesanan.id}`;
   isiLabelStatus(elemen.querySelector(".label-status"), pesanan.status);
   elemen.querySelector(".isi-pesanan").textContent = ringkasItems(pesanan.items);
+  isiCatatan(elemen.querySelector(".catatan-pesanan"), pesanan.catatan);
   elemen.querySelector(".jam-ambil").textContent = formatWaktu(pesanan.waktu_ambil);
   elemen.querySelector(".total-pesanan").textContent = formatRupiah(pesanan.total);
 }

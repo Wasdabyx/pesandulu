@@ -8,8 +8,8 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=7">
-  <link rel="stylesheet" href="css/tabel-susun.css?v=7" media="(max-width: 640px)">
+  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/tabel-susun.css?v=8" media="(max-width: 640px)">
 </head>
 <body>
   <header class="kepala">
@@ -38,6 +38,7 @@
             <th scope="col">Nama</th>
             <th scope="col">Kategori</th>
             <th scope="col">Harga</th>
+            <th scope="col">Stok</th>
             <th scope="col">Tersedia</th>
             <th scope="col">Aksi</th>
           </tr>
@@ -62,6 +63,9 @@
         <label for="isian-harga">Harga (Rp)</label>
         <input id="isian-harga" name="harga" type="number" min="1" max="1000000" step="1" inputmode="numeric" required>
 
+        <label for="isian-stok">Stok <span class="opsional">(kosongkan kalau tidak dibatasi)</span></label>
+        <input id="isian-stok" name="stok" type="number" min="0" max="999" step="1" inputmode="numeric">
+
         <label class="pilihan">
           <input name="tersedia" type="checkbox" checked>
           Tersedia
@@ -81,6 +85,7 @@
       <td class="sel-nama"></td>
       <td class="sel-kategori" data-label="Kategori"></td>
       <td class="sel-harga" data-label="Harga"></td>
+      <td class="sel-stok" data-label="Stok"></td>
       <td data-label="Tersedia">
         <label class="pilihan-sakelar">
           <input type="checkbox" role="switch" class="sakelar">
@@ -94,8 +99,8 @@
     </tr>
   </template>
 
-  <script src="js/config.js?v=7"></script>
-  <script src="js/umum.js?v=7"></script>
-  <script src="js/kelola-menu.js?v=7"></script>
+  <script src="js/config.js?v=8"></script>
+  <script src="js/umum.js?v=8"></script>
+  <script src="js/kelola-menu.js?v=8"></script>
 </body>
 </html>

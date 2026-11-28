@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=8">
 </head>
 <body class="ada-navigasi-bawah">
   <header class="kepala">
@@ -40,6 +40,10 @@
       <form id="formulir-pesanan" class="formulir">
         <label for="isian-waktu">Waktu ambil</label>
         <select id="isian-waktu" name="waktu_ambil" required></select>
+        <p id="keterangan-waktu" class="keterangan-isian" role="status" hidden></p>
+
+        <label for="isian-catatan">Catatan untuk penjual <span class="opsional">(boleh kosong)</span></label>
+        <input id="isian-catatan" name="catatan" type="text" maxlength="100" autocomplete="off" placeholder="Contoh: tidak pedas">
 
         <div class="tumpukan-tombol">
           <button type="submit" id="tombol-pesan" class="tombol utama" disabled>Pesan Sekarang</button>
@@ -62,6 +66,7 @@
       <div class="teks-item">
         <span class="nama-item"></span>
         <span class="harga-item"></span>
+        <span class="sisa-item" hidden></span>
       </div>
       <span class="label-status habis label-habis" hidden>Habis</span>
       <button type="button" class="tombol kecil tombol-tambah" hidden>+ Tambah</button>
@@ -73,8 +78,8 @@
     </li>
   </template>
 
-  <script src="js/config.js?v=7"></script>
-  <script src="js/umum.js?v=7"></script>
-  <script src="js/buat-pesanan.js?v=7"></script>
+  <script src="js/config.js?v=8"></script>
+  <script src="js/umum.js?v=8"></script>
+  <script src="js/buat-pesanan.js?v=8"></script>
 </body>
 </html>

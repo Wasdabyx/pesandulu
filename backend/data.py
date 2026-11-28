@@ -18,11 +18,11 @@ def teks_utf8_sah(teks):
 _SANDI_CONTOH = hash_sandi("pelanggan123")
 
 MENU = [
-    {"id": 1, "nama": "Nasi Goreng", "harga": 15000, "kategori": "Makanan", "tersedia": True},
-    {"id": 2, "nama": "Ayam Geprek", "harga": 18000, "kategori": "Makanan", "tersedia": True},
-    {"id": 3, "nama": "Mie Ayam", "harga": 12000, "kategori": "Makanan", "tersedia": False},
-    {"id": 4, "nama": "Es Teh", "harga": 5000, "kategori": "Minuman", "tersedia": True},
-    {"id": 5, "nama": "Es Jeruk", "harga": 7000, "kategori": "Minuman", "tersedia": True},
+    {"id": 1, "nama": "Nasi Goreng", "harga": 15000, "kategori": "Makanan", "tersedia": True, "stok": None},
+    {"id": 2, "nama": "Ayam Geprek", "harga": 18000, "kategori": "Makanan", "tersedia": True, "stok": None},
+    {"id": 3, "nama": "Mie Ayam", "harga": 12000, "kategori": "Makanan", "tersedia": False, "stok": None},
+    {"id": 4, "nama": "Es Teh", "harga": 5000, "kategori": "Minuman", "tersedia": True, "stok": None},
+    {"id": 5, "nama": "Es Jeruk", "harga": 7000, "kategori": "Minuman", "tersedia": True, "stok": None},
 ]
 
 PELANGGAN = [
@@ -39,6 +39,7 @@ PESANAN = [
         "items": [{"menu_id": 3, "nama": "Mie Ayam", "harga": 12000, "jumlah": 2}],
         "total": 24000,
         "waktu_ambil": "10:30",
+        "catatan": "",
         "status": "selesai",
     },
     {
@@ -50,6 +51,7 @@ PESANAN = [
         ],
         "total": 25000,
         "waktu_ambil": "12:00",
+        "catatan": "",
         "status": "siap diambil",
     },
     {
@@ -61,6 +63,7 @@ PESANAN = [
         ],
         "total": 23000,
         "waktu_ambil": "12:15",
+        "catatan": "",
         "status": "diproses",
     },
     {
@@ -69,6 +72,7 @@ PESANAN = [
         "items": [{"menu_id": 2, "nama": "Ayam Geprek", "harga": 18000, "jumlah": 1}],
         "total": 18000,
         "waktu_ambil": "12:30",
+        "catatan": "Tidak pedas",
         "status": "menunggu",
     },
 ]

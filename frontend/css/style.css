@@ -639,8 +639,14 @@ a.tombol {
 
 .sel-harga,
 .sel-ambil,
+.sel-stok,
 .sel-no-hp {
   font-variant-numeric: tabular-nums;
+}
+
+.sel-stok.habis {
+  font-weight: 700;
+  color: var(--warna-gagal);
 }
 
 .sel-harga,
@@ -727,6 +733,13 @@ a.tombol {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--warna-redup);
+}
+
+.sisa-item {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--warna-kedua-tua);
 }
 
 .item-menu.habis .nama-item {
@@ -960,6 +973,15 @@ a.tombol {
   overflow-wrap: anywhere;
 }
 
+.catatan-pesanan {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--warna-kedua-tua);
+  overflow-wrap: anywhere;
+}
+
 .rincian-pesanan {
   display: flex;
   align-items: flex-end;
@@ -1068,6 +1090,18 @@ a.tombol {
   margin: 14px 0 6px;
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.opsional {
+  font-weight: 500;
+  color: var(--warna-redup);
+}
+
+.keterangan-isian {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--warna-gagal);
 }
 
 input[type="text"],

@@ -220,7 +220,7 @@ Kalau repositori disalin ke folder lain atau pengguna servernya bukan `ubuntu`, 
 | Daftar Pelanggan | `/daftar-pelanggan.html` | Penjual |
 
 Halaman pelanggan dan halaman penjual membawa ke Login kalau belum login, dan ke Dashboard yang sesuai kalau login sebagai peran lain.
-Kedua Dashboard, Menu & Buat Pesanan, Pesanan Saya, dan Antrean Pesanan mengambil data terbaru dari back-end setiap 10 detik, jadi perubahan dari perangkat lain muncul tanpa memuat ulang halaman.
+Kedua Dashboard, Menu & Buat Pesanan, Pesanan Saya, Antrean Pesanan, dan Kelola Menu mengambil data terbaru dari back-end setiap 10 detik, jadi perubahan dari perangkat lain muncul tanpa memuat ulang halaman.
 Profil Anggota memuat profil anggota kelompok. Halaman itu statis dan tidak memanggil API, jadi tetap tampil walaupun back-end tidak bisa dihubungi.
 
 ## Login
@@ -255,7 +255,8 @@ Sesi disimpan di memori back-end dan berakhir saat logout atau saat back-end dij
 | DELETE | `/api/pelanggan/<id>` | Menghapus pelanggan | Pemilik akun |
 | GET | `/api/pesanan` | Penjual melihat semua pesanan; pelanggan melihat pesanannya sendiri | Penjual, pelanggan |
 | GET | `/api/pesanan/<id>` | Melihat satu pesanan | Penjual, pemesan |
-| GET | `/api/pesanan/aturan` | Melihat pilihan waktu ambil dan jumlah tertinggi per menu | Semua |
+| GET | `/api/pesanan/aturan` | Melihat pilihan waktu ambil, jumlah tertinggi per menu, kuota per waktu ambil, dan panjang catatan | Semua |
+| GET | `/api/pesanan/waktu-penuh` | Melihat waktu ambil yang kuotanya sudah habis | Semua |
 | POST | `/api/pesanan` | Membuat pesanan atas nama pelanggan yang login | Pelanggan |
 | PATCH | `/api/pesanan/<id>` | Mengubah status pesanan | Penjual |
 | DELETE | `/api/pesanan/<id>` | Membatalkan pesanan | Pemesan |
@@ -267,9 +268,9 @@ Kalau perubahan tidak bisa ditulis ke berkas data, jawabannya 503 dengan bentuk 
 
 | Entitas | Kolom |
 |---|---|
-| Menu | `nama`, `harga`, `kategori` (`Makanan` atau `Minuman`), `tersedia` (`true` atau `false`) |
+| Menu | `nama`, `harga`, `kategori` (`Makanan` atau `Minuman`), `tersedia` (`true` atau `false`), `stok` (0 sampai 999, atau `null` kalau tidak dibatasi) |
 | Pelanggan | `nama`, `no_hp` (diawali `08`, 10 sampai 13 angka, tidak boleh sama dengan pelanggan lain), `kata_sandi` (6 sampai 64 karakter) |
-| Pesanan | `pelanggan_id`, `items` (daftar berisi `menu_id` dan `jumlah`), `waktu_ambil` (`09:00` sampai `16:00`, tiap 15 menit), `total`, `status` |
+| Pesanan | `pelanggan_id`, `items` (daftar berisi `menu_id` dan `jumlah`), `waktu_ambil` (`09:00` sampai `16:00`, tiap 15 menit), `catatan` (paling panjang 100 karakter, boleh kosong), `total`, `status` |
 
 Kata sandi pelanggan disimpan sebagai hash dan tidak pernah dikirim balik oleh API.
 
@@ -279,6 +280,9 @@ Aturan pesanan:
 - Setiap item menyimpan salinan `nama` dan `harga` menu saat pesanan dibuat, jadi pesanan lama tidak berubah ketika harga menu diubah atau menunya dihapus.
 - Status hanya bisa maju satu langkah: `menunggu`, `diproses`, `siap diambil`, `selesai`. PATCH mengirim `{"status": "<status berikutnya>"}`.
 - Pesanan hanya bisa dibatalkan selama statusnya `menunggu`.
+- Menu yang `tersedia`-nya `false` atau `stok`-nya 0 tidak bisa dipesan. Stok berkurang sebanyak jumlah yang dipesan dan kembali kalau pesanannya dibatalkan. Pesanan yang melebihi stok ditolak.
+- Satu waktu ambil menampung paling banyak 5 pesanan yang belum `selesai`. Pesanan ke waktu ambil yang sudah penuh ditolak.
+- `catatan` dirapikan: spasi di tepi dibuang dan spasi ganda dijadikan satu.
 - Akun pelanggan tidak bisa dihapus selama masih punya pesanan yang belum `selesai`.
 - Jawaban API menambahkan `nama_pelanggan`, yang bernilai `null` kalau akunnya sudah dihapus.
 - Penjualan dan menu terlaris di `/api/rekap` dihitung dari pesanan yang sudah `selesai`.
@@ -356,8 +360,10 @@ Kalau ada variabel yang belum diisi atau nilainya salah, back-end tidak mau berj
 Di berkas `.env`, nilai yang memuat spasi atau tanda `#` ditulis di antara tanda kutip tunggal, misalnya `PESANDULU_SANDI_PENJUAL='sate #1 enak'`.
 
 Berkas data berisi menu, pelanggan, dan pesanan dalam format JSON. Kata sandi pelanggan di dalamnya berupa hash. Berkas itu dibuat saat back-end pertama kali berjalan, berisi data awal.
+Berkas data dari versi lama, yang belum punya `stok` dan `catatan`, dinaikkan sendiri saat dimuat. Isi lamanya disalin dulu ke `data.json.versi-1` di folder yang sama, dan salinan itu juga tidak ikut Git.
 Back-end memuat berkas itu lagi setiap kali isinya berubah. Jadi kalau berkasnya dihapus, back-end kembali ke data awal, dan kalau isinya diganti, isi yang baru yang dipakai.
 Kalau isi berkas itu tidak sah, back-end tidak mau berjalan dan menyebutkan bagian yang salah. Kalau itu terjadi selagi back-end berjalan, data terakhir tetap bisa dilihat, tetapi perubahan ditolak sampai berkasnya diperbaiki.
+Sebelum menulis, back-end memeriksa data dengan pemeriksa yang sama dengan saat memuat, jadi berkas yang ditulisnya selalu bisa dimuat lagi.
 Satu berkas data hanya untuk satu back-end yang sedang berjalan.
 
 ## Konfigurasi front-end
@@ -375,5 +381,5 @@ Situs di Vercel memakai HTTPS, dan browser menolak panggilan dari halaman HTTPS 
 
 ## Mengubah CSS atau JavaScript
 
-Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=7`, misalnya `js/umum.js?v=7`.
+Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=8`, misalnya `js/umum.js?v=8`.
 Setiap kali CSS atau JavaScript diubah, naikkan angka itu di semua berkas HTML. Alamat yang berubah membuat browser mengambil berkas yang baru, bukan salinan lama yang disimpannya.

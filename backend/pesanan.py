@@ -1,6 +1,7 @@
 from flask import Blueprint, g, jsonify, request
 
-from data import MENU, PELANGGAN, PESANAN, cari, id_baru
+from data import MENU, PELANGGAN, PESANAN, cari, id_baru, teks_utf8_sah
+from menu import habis, ubah_stok
 from sesi import tidak_berhak, wajib_login
 
 URUTAN_STATUS = ("menunggu", "diproses", "siap diambil", "selesai")
@@ -8,6 +9,8 @@ JAM_BUKA = 9
 JAM_TUTUP = 16
 SELANG_MENIT = 15
 JUMLAH_TERTINGGI = 20
+KUOTA_PER_WAKTU = 5
+PANJANG_CATATAN_TERTINGGI = 100
 WAKTU_AMBIL = [
     f"{menit // 60:02d}:{menit % 60:02d}"
     for menit in range(JAM_BUKA * 60, JAM_TUTUP * 60 + 1, SELANG_MENIT)
@@ -16,12 +19,17 @@ WAKTU_AMBIL = [
 pesanan_bp = Blueprint("pesanan", __name__, url_prefix="/api/pesanan")
 
 
+def terisi(waktu_ambil):
+    return sum(1 for pesanan in PESANAN if pesanan["waktu_ambil"] == waktu_ambil and pesanan["status"] != URUTAN_STATUS[-1])
+
+
 def periksa_isian(kiriman, id_pelanggan):
     if not isinstance(kiriman, dict):
         return None, "Isi permintaan harus berupa JSON."
 
     kiriman_items = kiriman.get("items")
     waktu_ambil = kiriman.get("waktu_ambil")
+    catatan = kiriman.get("catatan", "")
 
     if not isinstance(kiriman_items, list) or not kiriman_items:
         return None, "Pesanan harus berisi paling sedikit satu menu."
@@ -37,20 +45,30 @@ def periksa_isian(kiriman, id_pelanggan):
             return None, "Menu yang dipesan tidak ditemukan."
         if any(item["menu_id"] == id_menu for item in items):
             return None, f"{menu['nama']} ditulis lebih dari sekali."
-        if not menu["tersedia"]:
+        if habis(menu):
             return None, f"{menu['nama']} sedang habis."
         if type(jumlah) is not int or not 0 < jumlah <= JUMLAH_TERTINGGI:
             return None, f"Jumlah {menu['nama']} harus 1 sampai {JUMLAH_TERTINGGI}."
+        if menu["stok"] is not None and jumlah > menu["stok"]:
+            return None, f"Stok {menu['nama']} tinggal {menu['stok']}."
         items.append({"menu_id": id_menu, "nama": menu["nama"], "harga": menu["harga"], "jumlah": jumlah})
 
     if not isinstance(waktu_ambil, str) or waktu_ambil not in WAKTU_AMBIL:
         return None, f"Waktu ambil harus dari {WAKTU_AMBIL[0]} sampai {WAKTU_AMBIL[-1]}, tiap {SELANG_MENIT} menit."
+    if terisi(waktu_ambil) >= KUOTA_PER_WAKTU:
+        return None, f"Waktu ambil {waktu_ambil.replace(':', '.')} sudah penuh. Pilih waktu lain."
+    if not isinstance(catatan, str) or not teks_utf8_sah(catatan):
+        return None, "Catatan harus berupa teks."
+    catatan = " ".join(catatan.split())
+    if len(catatan) > PANJANG_CATATAN_TERTINGGI:
+        return None, f"Catatan paling panjang {PANJANG_CATATAN_TERTINGGI} karakter."
 
     return {
         "pelanggan_id": id_pelanggan,
         "items": items,
         "total": sum(item["harga"] * item["jumlah"] for item in items),
         "waktu_ambil": waktu_ambil,
+        "catatan": catatan,
         "status": URUTAN_STATUS[0],
     }, None
 
@@ -83,7 +101,19 @@ def daftar_pesanan():
 
 @pesanan_bp.get("/aturan")
 def aturan_pesanan():
-    return jsonify({"waktu_ambil": WAKTU_AMBIL, "jumlah_tertinggi": JUMLAH_TERTINGGI})
+    return jsonify(
+        {
+            "waktu_ambil": WAKTU_AMBIL,
+            "jumlah_tertinggi": JUMLAH_TERTINGGI,
+            "kuota_per_waktu": KUOTA_PER_WAKTU,
+            "panjang_catatan": PANJANG_CATATAN_TERTINGGI,
+        }
+    )
+
+
+@pesanan_bp.get("/waktu-penuh")
+def waktu_penuh():
+    return jsonify([waktu for waktu in WAKTU_AMBIL if terisi(waktu) >= KUOTA_PER_WAKTU])
 
 
 @pesanan_bp.get("/<int:id_pesanan>")
@@ -104,6 +134,8 @@ def buat_pesanan():
     if pesan:
         return jsonify({"pesan": pesan}), 400
     pesanan = {"id": id_baru("pesanan"), **isian}
+    for item in pesanan["items"]:
+        ubah_stok(item["menu_id"], -item["jumlah"])
     PESANAN.append(pesanan)
     return jsonify(lengkapi(pesanan)), 201
 
@@ -136,5 +168,7 @@ def batalkan_pesanan(id_pesanan):
         return tidak_berhak()
     if pesanan["status"] != URUTAN_STATUS[0]:
         return jsonify({"pesan": "Pesanan yang sudah diproses tidak bisa dibatalkan."}), 400
+    for item in pesanan["items"]:
+        ubah_stok(item["menu_id"], item["jumlah"])
     PESANAN.remove(pesanan)
     return "", 204

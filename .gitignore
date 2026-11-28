@@ -4,6 +4,7 @@ __pycache__/
 .env
 data.json
 data.json.tmp
+data.json.versi-*
 .vscode/
 *.pem
 *.ppk

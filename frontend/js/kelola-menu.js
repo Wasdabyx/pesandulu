@@ -10,6 +10,10 @@ const tombolSimpan = document.getElementById("tombol-simpan");
 const tombolBatal = document.getElementById("tombol-batal");
 
 let idYangDiubah = null;
+let stokAwal = null;
+let menuTerakhir = [];
+let cetakan = null;
+let galatMuatTampil = false;
 
 function teksKetersediaan(tersedia) {
   return tersedia ? "Ya" : "Habis";
@@ -19,10 +23,17 @@ function buatBaris(menu) {
   const baris = templatBaris.content.firstElementChild.cloneNode(true);
   const sakelar = baris.querySelector(".sakelar");
   const teksSakelar = baris.querySelector(".teks-sakelar");
+  const selStok = baris.querySelector(".sel-stok");
 
   baris.querySelector(".sel-nama").textContent = menu.nama;
   baris.querySelector(".sel-kategori").textContent = menu.kategori;
   baris.querySelector(".sel-harga").textContent = formatRupiah(menu.harga);
+  selStok.textContent = menu.stok === null ? "–" : menu.stok;
+  selStok.classList.toggle("habis", menu.stok === 0);
+  if (menu.stok === null) {
+    selStok.title = "Tidak dibatasi";
+    selStok.setAttribute("aria-label", "Tidak dibatasi");
+  }
   sakelar.checked = menu.tersedia;
   sakelar.setAttribute("aria-label", `${menu.nama} tersedia`);
   teksSakelar.textContent = teksKetersediaan(menu.tersedia);
@@ -39,15 +50,35 @@ async function muatMenu() {
     return;
   }
   const daftarMenu = await panggilApi("/api/menu");
-  badanTabel.replaceChildren(...daftarMenu.map(buatBaris));
-  daftarKosong.hidden = daftarMenu.length > 0;
+  const cetakanBaru = JSON.stringify(daftarMenu);
+  if (cetakanBaru !== cetakan) {
+    cetakan = cetakanBaru;
+    menuTerakhir = daftarMenu;
+    badanTabel.replaceChildren(...daftarMenu.map(buatBaris));
+    daftarKosong.hidden = daftarMenu.length > 0;
+  }
+}
+
+async function segarkanDiam() {
+  try {
+    await muatMenu();
+    if (galatMuatTampil) {
+      galatMuatTampil = false;
+      tampilkanPesan(pesanDaftar, "");
+    }
+  } catch (galat) {
+    galatMuatTampil = true;
+    tampilkanPesan(pesanDaftar, galat.message, "gagal");
+  }
 }
 
 async function segarkan(pesan = "", jenis = "ok") {
   try {
     await muatMenu();
+    galatMuatTampil = false;
     tampilkanPesan(pesanDaftar, pesan, jenis);
   } catch (galat) {
+    galatMuatTampil = true;
     tampilkanPesan(pesanDaftar, galat.message, "gagal");
   }
 }
@@ -55,11 +86,13 @@ async function segarkan(pesan = "", jenis = "ok") {
 function siapkanFormulir(menu) {
   formulir.reset();
   idYangDiubah = menu ? menu.id : null;
+  stokAwal = menu ? menu.stok : null;
   judulFormulir.textContent = menu ? "Ubah Menu" : "Tambah Menu";
   if (menu) {
     formulir.elements.nama.value = menu.nama;
     formulir.elements.kategori.value = menu.kategori;
     formulir.elements.harga.value = menu.harga;
+    formulir.elements.stok.value = menu.stok === null ? "" : menu.stok;
     formulir.elements.tersedia.checked = menu.tersedia;
   }
   tampilkanPesan(pesanFormulir, "");
@@ -78,6 +111,10 @@ async function simpanMenu(peristiwa) {
     harga: Number(formulir.elements.harga.value),
     tersedia: formulir.elements.tersedia.checked,
   };
+  const stok = formulir.elements.stok.value === "" ? null : Number(formulir.elements.stok.value);
+  if (idYangDiubah === null || stok !== stokAwal) {
+    isian.stok = stok;
+  }
 
   tombolSimpan.disabled = true;
   try {
@@ -101,6 +138,7 @@ async function ubahKetersediaan(menu, sakelar, teksSakelar) {
   try {
     const hasil = await panggilApi(`/api/menu/${menu.id}`, "PATCH", { tersedia: sakelar.checked });
     menu.tersedia = hasil.tersedia;
+    cetakan = JSON.stringify(menuTerakhir);
     teksSakelar.textContent = teksKetersediaan(menu.tersedia);
     if (idYangDiubah === menu.id) {
       formulir.elements.tersedia.checked = menu.tersedia;
@@ -132,3 +170,4 @@ formulir.addEventListener("submit", simpanMenu);
 tombolTambah.addEventListener("click", () => bukaFormulir(null));
 tombolBatal.addEventListener("click", () => siapkanFormulir(null));
 segarkan();
+segarkanBerkala(segarkanDiam);

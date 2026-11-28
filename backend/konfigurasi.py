@@ -54,11 +54,24 @@ def baca_asal(teks):
     return daftar
 
 
+def baca_berkas_data(teks):
+    berkas = Path(teks)
+    if not berkas.is_absolute():
+        berkas = FOLDER / berkas
+    berkas = Path(os.path.abspath(berkas))
+    if berkas.is_dir():
+        raise ValueError("menunjuk ke sebuah folder, padahal harus nama berkas seperti data.json")
+    if not berkas.parent.is_dir():
+        raise ValueError(f"menunjuk ke folder yang belum ada, yaitu {berkas.parent}")
+    return berkas
+
+
 PEMBACA = {
     "PESANDULU_HOST": baca_host,
     "PESANDULU_PORT": baca_port,
     "PESANDULU_ALLOWED_ORIGINS": baca_asal,
     "PESANDULU_SANDI_PENJUAL": str,
+    "PESANDULU_BERKAS_DATA": baca_berkas_data,
 }
 
 
@@ -107,6 +120,7 @@ HOST = NILAI["PESANDULU_HOST"]
 PORT = NILAI["PESANDULU_PORT"]
 ALLOWED_ORIGINS = NILAI["PESANDULU_ALLOWED_ORIGINS"]
 SANDI_PENJUAL = NILAI["PESANDULU_SANDI_PENJUAL"]
+BERKAS_DATA = NILAI["PESANDULU_BERKAS_DATA"]
 HOST_LOKAL = HOST == "localhost" or ipaddress.ip_address(HOST).is_loopback
 
 

@@ -7,7 +7,7 @@ Proyek mata kuliah CAK3EAB3 Komputasi Awan dan Terdistribusi.
 
 | Folder | Isi |
 |---|---|
-| `backend/` | API dengan Python dan Flask. Data disimpan di memori sebagai list of dict, tanpa database. |
+| `backend/` | API dengan Python dan Flask. Data berupa list of dict yang disimpan ke satu berkas JSON, tanpa database. |
 | `frontend/` | Halaman statis (HTML, CSS, JavaScript) yang memanggil API lewat HTTP. |
 
 ## Repositori
@@ -18,9 +18,10 @@ Seluruh kode PesanDulu, back-end dan front-end, disimpan di satu repositori Git 
 |---|---|---|
 | Laptop anggota, untuk pengembangan | Back-end dan front-end | `backend/.env` dan `frontend/js/config.js` |
 | Vercel | Front-end | `frontend/js/config.js` |
+| PythonAnywhere | Back-end sebagai web app | `backend/.env` |
 | Server Linux, misalnya instance EC2 | Back-end sebagai layanan systemd | `backend/.env` |
 
-Berkas `.env` dan folder `.venv` sengaja tidak ikut Git. Keduanya dibuat di tiap tempat pemasangan dari `.env.example` dan `requirements.txt`. Daftar lengkap yang tidak ikut Git ada di `.gitignore`.
+Berkas `.env` dan folder `.venv` sengaja tidak ikut Git. Keduanya dibuat di tiap tempat pemasangan dari `.env.example` dan `requirements.txt`. Berkas data `data.json`, yang dibuat back-end saat berjalan, juga tidak ikut Git. Begitu pula berkas kunci untuk masuk ke server, yang berakhiran `.pem` atau `.ppk`. Daftar lengkap yang tidak ikut Git ada di `.gitignore`.
 
 ## Menjalankan di Windows
 
@@ -48,6 +49,7 @@ Pemasangan paket dan `copy` cukup sekali. Sesudah itu back-end dijalankan dengan
 Kalau `requirements.txt` berubah, jalankan lagi `conda env update -f environment.yml` atau baris `pip install` tadi.
 
 Back-end berjalan di `http://127.0.0.1:5000`. Coba buka `http://127.0.0.1:5000/api/status`. Hentikan back-end dengan Ctrl+C.
+Data tersimpan di `backend\data.json`, jadi tetap ada saat back-end dijalankan lagi. Untuk kembali ke data awal, hapus berkas itu.
 
 Front-end, di terminal kedua, dari folder `frontend`:
 
@@ -72,10 +74,58 @@ Front-end berupa berkas statis, jadi dipasang di Vercel tanpa proses build. Peng
 
 Setiap push ke branch `main` dipasang otomatis. Back-end tidak ikut dipasang di Vercel.
 
+## Memasang back-end di PythonAnywhere
+
+PythonAnywhere menjalankan back-end sebagai web app dengan alamat `https://<nama pengguna>.pythonanywhere.com`. Akun yang dibuat di eu.pythonanywhere.com mendapat alamat `https://<nama pengguna>.eu.pythonanywhere.com`. Akun gratisnya cukup untuk satu web app.
+Buka konsol Bash di PythonAnywhere, lalu masukkan perintah berikut satu baris per satu baris.
+
+```
+git clone https://github.com/Wasdabyx/pesandulu.git
+mkvirtualenv --python=/usr/bin/python3.13 pesandulu
+pip install -r pesandulu/backend/requirements.txt
+cp pesandulu/backend/.env.example pesandulu/backend/.env
+nano pesandulu/backend/.env
+```
+
+Di `.env`, ganti dua nilai berikut. Tiga baris lainnya dibiarkan seperti contoh.
+
+| Variabel | Nilai di PythonAnywhere |
+|---|---|
+| `PESANDULU_ALLOWED_ORIGINS` | `https://pesandulu.vercel.app`, alamat front-end di Vercel |
+| `PESANDULU_SANDI_PENJUAL` | Kata sandi baru, bukan kata sandi contoh |
+
+Simpan dan keluar dari `nano` dengan `Ctrl+X`, lalu `Y`, lalu `Enter`. Sesudah itu, di tab Web:
+
+1. Pilih Add a new web app, lalu Manual configuration, lalu Python 3.13.
+2. Di bagian Virtualenv, isi `pesandulu`.
+3. Buka WSGI configuration file, ganti seluruh isinya dengan kode di bawah, lalu simpan.
+4. Tekan tombol Reload.
+
+```
+import os
+import sys
+import time
+
+os.environ["TZ"] = "Asia/Jakarta"
+time.tzset()
+sys.path.insert(0, os.path.expanduser("~/pesandulu/backend"))
+from app import app as application
+```
+
+Coba buka alamat web app itu ditambah `/api/status`, misalnya `https://<nama pengguna>.pythonanywhere.com/api/status`. Kalau yang tampil halaman galat, pesan dari back-end tertulis di Error log pada tab Web.
+Kalau kata sandi penjual masih kata sandi contoh, back-end menulis peringatan di Error log setiap kali dimuat.
+Jam di server PythonAnywhere memakai UTC. Dua baris `TZ` di kode itu membuat back-end memakai WIB, jadi `waktu_server` menunjukkan jam WIB.
+PythonAnywhere memakai server HTTP miliknya sendiri, bukan waitress, jadi `PESANDULU_HOST` dan `PESANDULU_PORT` tidak dipakai di sana. Keduanya tetap harus terisi.
+Data tersimpan di `pesandulu/backend/data.json`, jadi tetap ada setelah Reload.
+Setiap kali `.env` diubah, tekan Reload supaya nilai yang baru dipakai.
+Untuk memperbarui kode, jalankan `git pull` dari folder `pesandulu` di konsol Bash, lalu tekan Reload. Kalau `requirements.txt` ikut berubah, jalankan dulu `workon pesandulu`, lalu `pip install -r backend/requirements.txt`.
+Web app di akun gratis berlaku satu bulan, lalu berhenti kalau tidak diperpanjang. Tombol perpanjangannya ada di tab Web.
+
 ## Memasang back-end di server Linux
 
 Di server, misalnya instance EC2, back-end dijalankan sebagai layanan systemd bernama `pesandulu`. Layanan itu ikut menyala setiap server dinyalakan, dan dijalankan lagi kalau programnya mati mendadak.
 Perintah berikut untuk Ubuntu 24.04 atau lebih baru dengan pengguna `ubuntu`, dimulai dari folder home pengguna itu.
+Masukkan perintahnya satu baris per satu baris, dan tunggu prompt muncul lagi sebelum baris berikutnya. Kalau beberapa baris ditempel sekaligus, di sebagian terminal hanya baris pertama yang jalan.
 
 ```
 sudo apt update
@@ -96,6 +146,10 @@ Perintah `chmod 600` membuat `.env` hanya bisa dibaca oleh pengguna itu. Buka `.
 | `PESANDULU_PORT` | `5000`, sama dengan contoh |
 | `PESANDULU_ALLOWED_ORIGINS` | Alamat front-end yang sudah online, yaitu `http://` diikuti alamat publik server front-end |
 | `PESANDULU_SANDI_PENJUAL` | Kata sandi baru, bukan kata sandi contoh |
+| `PESANDULU_BERKAS_DATA` | `/var/lib/pesandulu/data.json`, di folder yang disiapkan systemd untuk layanan ini |
+
+Alamat front-end ditulis lengkap dengan `http://` di depannya. Selama front-end belum punya alamat, baris itu boleh dibiarkan seperti contoh.
+Di `nano`, simpan dan keluar dengan `Ctrl+X`, lalu `Y`, lalu `Enter`.
 
 Sesudah itu, masih dari folder `backend`, pasang layanannya.
 
@@ -106,17 +160,20 @@ sudo systemctl enable --now pesandulu
 systemctl status pesandulu
 ```
 
-Baris `Active: active (running)` berarti back-end sudah berjalan. Dari server itu sendiri, coba `curl http://127.0.0.1:5000/api/status`.
+Baris `Active: active (running)` berarti back-end sudah berjalan. Di terminal, `systemctl status` menahan layar sampai tombol `q` ditekan.
+Kalau yang tampil `Active: failed` dengan `status=78/CONFIG`, isi `.env` belum benar dan pesannya tertulis di baris catatan di bawahnya. Perbaiki `.env`, lalu jalankan `sudo systemctl restart pesandulu`.
+Dari server itu sendiri, coba `curl http://127.0.0.1:5000/api/status`.
 Dari luar, back-end dibuka di port 5000 pada alamat publik server, setelah port itu diizinkan di firewall server, misalnya di security group EC2.
 
 | Perintah | Kegunaan |
 |---|---|
 | `systemctl status pesandulu` | Melihat keadaan layanan dan beberapa baris catatan terakhir |
+| `systemctl status pesandulu --no-pager -l` | Sama, tetapi langsung kembali ke prompt dan baris catatannya tidak dipotong |
 | `journalctl -u pesandulu -n 50` | Melihat 50 baris catatan terakhir |
 | `sudo systemctl restart pesandulu` | Menjalankan ulang layanan, misalnya setelah `.env` diubah |
 | `sudo systemctl stop pesandulu` | Menghentikan layanan |
 
-Data disimpan di memori, jadi setiap kali layanan dijalankan ulang, data kembali ke data awal.
+Data tersimpan di `/var/lib/pesandulu/data.json`, jadi tetap ada saat layanan atau servernya dijalankan ulang.
 Untuk memperbarui kode di server, jalankan `git pull`, lalu `.venv/bin/python -m pip install -r requirements.txt`, lalu `sudo systemctl restart pesandulu`.
 Kalau `pesandulu.service` ikut berubah, salin lagi berkas itu ke `/etc/systemd/system/` dan jalankan `sudo systemctl daemon-reload` sebelum `restart`.
 
@@ -133,8 +190,9 @@ Isi `backend/pesandulu.service`:
 | `Restart=on-failure` dan `RestartSec=5` | Kalau program mati karena galat, systemd menjalankannya lagi 5 detik kemudian |
 | `RestartPreventExitStatus=78` | Pengecualian: kalau konfigurasi salah, back-end berhenti dengan kode 78 dan tidak dijalankan lagi sampai diperbaiki |
 | `NoNewPrivileges=true` | Program tidak bisa memperoleh hak root, misalnya lewat `sudo` |
-| `ProtectSystem=strict` dan `ProtectHome=read-only` | Program hanya bisa membaca berkas di server, tidak bisa mengubahnya |
+| `ProtectSystem=strict` dan `ProtectHome=read-only` | Program hanya bisa membaca berkas di server, tidak bisa mengubahnya, kecuali di folder datanya |
 | `PrivateTmp=true` | Program mendapat folder `/tmp` sendiri |
+| `StateDirectory=pesandulu` | systemd menyiapkan folder `/var/lib/pesandulu` milik pengguna tadi, tempat program menulis berkas data |
 | `WantedBy=multi-user.target` | Dengan `systemctl enable`, layanan dijalankan setiap server dinyalakan |
 
 Kalau repositori disalin ke folder lain atau pengguna servernya bukan `ubuntu`, sesuaikan `User`, `WorkingDirectory`, dan `ExecStart` sebelum berkas itu disalin ke `/etc/systemd/system/`.
@@ -200,6 +258,7 @@ Sesi disimpan di memori back-end dan berakhir saat logout atau saat back-end dij
 
 Isi permintaan dan jawaban berformat JSON. Pada PATCH menu dan pelanggan, kolom yang tidak dikirim tidak berubah.
 Kalau permintaan gagal, back-end menjawab dengan kode status 4xx dan JSON `{"pesan": "..."}`: 401 kalau belum login, 403 kalau login sebagai peran atau pemilik yang salah.
+Kalau perubahan tidak bisa ditulis ke berkas data, jawabannya 503 dengan bentuk yang sama, dan perubahan itu dibatalkan.
 
 | Entitas | Kolom |
 |---|---|
@@ -219,7 +278,8 @@ Aturan pesanan:
 - Jawaban API menambahkan `nama_pelanggan`, yang bernilai `null` kalau akunnya sudah dihapus.
 - Penjualan dan menu terlaris di `/api/rekap` dihitung dari pesanan yang sudah `selesai`.
 
-Data awal ada di `backend/data.py`. Perubahan hanya tersimpan di memori, jadi data kembali ke isi awal dan semua sesi login berakhir setiap back-end dijalankan ulang.
+Data awal ada di `backend/data.py` dan dipakai kalau berkas data belum ada. Setiap perubahan langsung ditulis ke berkas data, jadi menu, pelanggan, dan pesanan tetap ada setelah back-end dijalankan ulang.
+Sesi login tidak ikut disimpan, jadi setelah back-end dijalankan ulang semua pengguna login lagi.
 
 ## Tampilan
 
@@ -262,7 +322,8 @@ Semua paket Python yang dibutuhkan back-end ditulis di `backend/requirements.txt
 | waitress | Server HTTP yang menjalankan aplikasi |
 | Werkzeug | Hash kata sandi dan galat HTTP |
 
-Back-end dijalankan oleh waitress dengan satu utas pekerja. Permintaan dilayani satu per satu, sehingga data di memori tidak diubah oleh dua permintaan pada saat yang sama. Isi satu permintaan dibatasi 1 MiB.
+Back-end dijalankan oleh waitress dengan satu utas pekerja. Permintaan dilayani satu per satu, sehingga data tidak diubah oleh dua permintaan pada saat yang sama. Isi satu permintaan dibatasi 1 MiB.
+Kalau aplikasinya dijalankan server lain, misalnya di PythonAnywhere, back-end sendiri yang membuat permintaan bergiliran dan menolak isi di atas 1 MiB.
 Lima paket lain di berkas itu (blinker, click, itsdangerous, Jinja2, MarkupSafe) dibutuhkan oleh Flask. Versinya ikut dikunci supaya setiap pemasangan menghasilkan susunan paket yang sama.
 
 `backend/environment.yml` membuat lingkungan conda bernama `pesandulu` berisi Python 3.13, lalu memasang paket dari `requirements.txt`. Jadi daftar paket hanya ditulis di satu tempat.
@@ -281,12 +342,18 @@ Back-end mengambil semua konfigurasinya dari environment variable. Di dalam kode
 | `PESANDULU_PORT` | `5000` | Port back-end |
 | `PESANDULU_ALLOWED_ORIGINS` | `http://127.0.0.1:5500,http://localhost:5500` | Alamat front-end yang boleh memanggil API, dipisah koma, tanpa nama halaman di belakangnya |
 | `PESANDULU_SANDI_PENJUAL` | `penjual123` | Kata sandi login penjual. Ganti sebelum aplikasi dibuka untuk umum |
+| `PESANDULU_BERKAS_DATA` | `data.json` | Berkas tempat back-end menyimpan data. Nama tanpa folder berarti di dalam folder `backend` |
 
 Untuk pengembangan di laptop, variabel itu ditulis di berkas `backend/.env`. Berkas `backend/.env.example` berisi konfigurasi pengembangan dan tinggal disalin menjadi `.env`.
 Berkas `.env` tidak ikut Git, jadi setiap tempat pemasangan punya konfigurasinya sendiri sedangkan kodenya sama.
 Environment variable yang diisi langsung di terminal atau di server mengalahkan isi `.env`.
 Kalau ada variabel yang belum diisi atau nilainya salah, back-end tidak mau berjalan dan menyebutkan variabel mana yang harus diperbaiki.
 Di berkas `.env`, nilai yang memuat spasi atau tanda `#` ditulis di antara tanda kutip tunggal, misalnya `PESANDULU_SANDI_PENJUAL='sate #1 enak'`.
+
+Berkas data berisi menu, pelanggan, dan pesanan dalam format JSON. Kata sandi pelanggan di dalamnya berupa hash. Berkas itu dibuat saat back-end pertama kali berjalan, berisi data awal.
+Back-end memuat berkas itu lagi setiap kali isinya berubah. Jadi kalau berkasnya dihapus, back-end kembali ke data awal, dan kalau isinya diganti, isi yang baru yang dipakai.
+Kalau isi berkas itu tidak sah, back-end tidak mau berjalan dan menyebutkan bagian yang salah. Kalau itu terjadi selagi back-end berjalan, data terakhir tetap bisa dilihat, tetapi perubahan ditolak sampai berkasnya diperbaiki.
+Satu berkas data hanya untuk satu back-end yang sedang berjalan.
 
 ## Konfigurasi front-end
 

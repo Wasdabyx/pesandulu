@@ -1,5 +1,3 @@
-from itertools import count
-
 from werkzeug.security import generate_password_hash
 
 CARA_HASH = "pbkdf2:sha256:600000"
@@ -76,20 +74,24 @@ PESANAN = [
 ]
 
 
-def _penghitung_setelah(daftar):
-    id_terbesar = max((item["id"] for item in daftar), default=0)
-    return count(id_terbesar + 1)
-
-
-_penghitung_id = {
-    "menu": _penghitung_setelah(MENU),
-    "pelanggan": _penghitung_setelah(PELANGGAN),
-    "pesanan": _penghitung_setelah(PESANAN),
-}
+DAFTAR = {"menu": MENU, "pelanggan": PELANGGAN, "pesanan": PESANAN}
+ID_BERIKUTNYA = {jenis: max((item["id"] for item in daftar), default=0) + 1 for jenis, daftar in DAFTAR.items()}
 
 
 def id_baru(jenis):
-    return next(_penghitung_id[jenis])
+    nomor = ID_BERIKUTNYA[jenis]
+    ID_BERIKUTNYA[jenis] = nomor + 1
+    return nomor
+
+
+def keadaan():
+    return {"id_berikutnya": ID_BERIKUTNYA, **DAFTAR}
+
+
+def pasang(isi):
+    for jenis, daftar in DAFTAR.items():
+        daftar[:] = isi[jenis]
+    ID_BERIKUTNYA.update(isi["id_berikutnya"])
 
 
 def cari(daftar, id_dicari):

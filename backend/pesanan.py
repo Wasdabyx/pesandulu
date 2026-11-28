@@ -1,16 +1,20 @@
 from flask import Blueprint, g, jsonify, request
 
-from data import MENU, PELANGGAN, PESANAN, cari, id_baru, teks_utf8_sah
+from data import MENU, PELANGGAN, PESANAN, cari, id_baru, sekarang, teks_utf8_sah
 from menu import habis, ubah_stok
 from sesi import tidak_berhak, wajib_login
 
 URUTAN_STATUS = ("menunggu", "diproses", "siap diambil", "selesai")
+STATUS_AKTIF = URUTAN_STATUS[:-1]
+STATUS_BATAL = "dibatalkan"
+SEMUA_STATUS = (*URUTAN_STATUS, STATUS_BATAL)
 JAM_BUKA = 9
 JAM_TUTUP = 16
 SELANG_MENIT = 15
 JUMLAH_TERTINGGI = 20
 KUOTA_PER_WAKTU = 5
 PANJANG_CATATAN_TERTINGGI = 100
+PANJANG_ALASAN_TERTINGGI = 100
 WAKTU_AMBIL = [
     f"{menit // 60:02d}:{menit % 60:02d}"
     for menit in range(JAM_BUKA * 60, JAM_TUTUP * 60 + 1, SELANG_MENIT)
@@ -20,7 +24,16 @@ pesanan_bp = Blueprint("pesanan", __name__, url_prefix="/api/pesanan")
 
 
 def terisi(waktu_ambil):
-    return sum(1 for pesanan in PESANAN if pesanan["waktu_ambil"] == waktu_ambil and pesanan["status"] != URUTAN_STATUS[-1])
+    return sum(1 for pesanan in PESANAN if pesanan["waktu_ambil"] == waktu_ambil and pesanan["status"] in STATUS_AKTIF)
+
+
+def teks_rapi(nilai, sebutan, terpanjang):
+    if not isinstance(nilai, str) or not teks_utf8_sah(nilai):
+        return None, f"{sebutan} harus berupa teks."
+    rapi = " ".join(nilai.split())
+    if len(rapi) > terpanjang:
+        return None, f"{sebutan} paling panjang {terpanjang} karakter."
+    return rapi, None
 
 
 def periksa_isian(kiriman, id_pelanggan):
@@ -57,11 +70,9 @@ def periksa_isian(kiriman, id_pelanggan):
         return None, f"Waktu ambil harus dari {WAKTU_AMBIL[0]} sampai {WAKTU_AMBIL[-1]}, tiap {SELANG_MENIT} menit."
     if terisi(waktu_ambil) >= KUOTA_PER_WAKTU:
         return None, f"Waktu ambil {waktu_ambil.replace(':', '.')} sudah penuh. Pilih waktu lain."
-    if not isinstance(catatan, str) or not teks_utf8_sah(catatan):
-        return None, "Catatan harus berupa teks."
-    catatan = " ".join(catatan.split())
-    if len(catatan) > PANJANG_CATATAN_TERTINGGI:
-        return None, f"Catatan paling panjang {PANJANG_CATATAN_TERTINGGI} karakter."
+    catatan, pesan = teks_rapi(catatan, "Catatan", PANJANG_CATATAN_TERTINGGI)
+    if pesan:
+        return None, pesan
 
     return {
         "pelanggan_id": id_pelanggan,
@@ -70,14 +81,14 @@ def periksa_isian(kiriman, id_pelanggan):
         "waktu_ambil": waktu_ambil,
         "catatan": catatan,
         "status": URUTAN_STATUS[0],
+        "dibuat": sekarang(),
+        "dibatalkan_oleh": None,
+        "alasan_batal": "",
     }, None
 
 
 def punya_pesanan_aktif(id_pelanggan):
-    return any(
-        pesanan["pelanggan_id"] == id_pelanggan and pesanan["status"] != URUTAN_STATUS[-1]
-        for pesanan in PESANAN
-    )
+    return any(pesanan["pelanggan_id"] == id_pelanggan and pesanan["status"] in STATUS_AKTIF for pesanan in PESANAN)
 
 
 def lengkapi(pesanan):
@@ -91,6 +102,27 @@ def milik_orang_lain(pesanan):
 
 def tidak_ditemukan():
     return jsonify({"pesan": "Pesanan tidak ditemukan."}), 404
+
+
+def sudah_berakhir(pesanan):
+    return jsonify({"pesan": f"Pesanan sudah {pesanan['status']}."}), 400
+
+
+def batalkan(pesanan, alasan):
+    peran = g.sesi["peran"]
+    if pesanan["status"] not in STATUS_AKTIF:
+        return sudah_berakhir(pesanan)
+    if peran == "pelanggan" and pesanan["status"] != URUTAN_STATUS[0]:
+        return jsonify({"pesan": "Pesanan yang sudah diproses tidak bisa dibatalkan."}), 400
+    alasan, pesan = teks_rapi(alasan, "Alasan", PANJANG_ALASAN_TERTINGGI)
+    if pesan is None and peran == "penjual" and not alasan:
+        pesan = "Alasan pembatalan wajib diisi."
+    if pesan:
+        return jsonify({"pesan": pesan}), 400
+    for item in pesanan["items"]:
+        ubah_stok(item["menu_id"], item["jumlah"])
+    pesanan.update(status=STATUS_BATAL, dibatalkan_oleh=peran, alasan_batal=alasan)
+    return jsonify(lengkapi(pesanan))
 
 
 @pesanan_bp.get("")
@@ -107,6 +139,7 @@ def aturan_pesanan():
             "jumlah_tertinggi": JUMLAH_TERTINGGI,
             "kuota_per_waktu": KUOTA_PER_WAKTU,
             "panjang_catatan": PANJANG_CATATAN_TERTINGGI,
+            "panjang_alasan": PANJANG_ALASAN_TERTINGGI,
         }
     )
 
@@ -141,34 +174,24 @@ def buat_pesanan():
 
 
 @pesanan_bp.patch("/<int:id_pesanan>")
-@wajib_login("penjual")
+@wajib_login("penjual", "pelanggan")
 def ubah_status(id_pesanan):
-    pesanan = cari(PESANAN, id_pesanan)
-    if pesanan is None:
-        return tidak_ditemukan()
-    kiriman = request.get_json(silent=True)
-    if not isinstance(kiriman, dict):
-        return jsonify({"pesan": "Isi permintaan harus berupa JSON."}), 400
-    if pesanan["status"] == URUTAN_STATUS[-1]:
-        return jsonify({"pesan": "Pesanan sudah selesai."}), 400
-    berikutnya = URUTAN_STATUS[URUTAN_STATUS.index(pesanan["status"]) + 1]
-    if kiriman.get("status") != berikutnya:
-        return jsonify({"pesan": f"Status pesanan ini hanya bisa diubah menjadi {berikutnya}."}), 400
-    pesanan["status"] = berikutnya
-    return jsonify(lengkapi(pesanan))
-
-
-@pesanan_bp.delete("/<int:id_pesanan>")
-@wajib_login("pelanggan")
-def batalkan_pesanan(id_pesanan):
     pesanan = cari(PESANAN, id_pesanan)
     if pesanan is None:
         return tidak_ditemukan()
     if milik_orang_lain(pesanan):
         return tidak_berhak()
-    if pesanan["status"] != URUTAN_STATUS[0]:
-        return jsonify({"pesan": "Pesanan yang sudah diproses tidak bisa dibatalkan."}), 400
-    for item in pesanan["items"]:
-        ubah_stok(item["menu_id"], item["jumlah"])
-    PESANAN.remove(pesanan)
-    return "", 204
+    kiriman = request.get_json(silent=True)
+    if not isinstance(kiriman, dict):
+        return jsonify({"pesan": "Isi permintaan harus berupa JSON."}), 400
+    if kiriman.get("status") == STATUS_BATAL:
+        return batalkan(pesanan, kiriman.get("alasan", ""))
+    if g.sesi["peran"] != "penjual":
+        return tidak_berhak()
+    if pesanan["status"] not in STATUS_AKTIF:
+        return sudah_berakhir(pesanan)
+    berikutnya = URUTAN_STATUS[URUTAN_STATUS.index(pesanan["status"]) + 1]
+    if kiriman.get("status") != berikutnya:
+        return jsonify({"pesan": f"Status pesanan ini hanya bisa diubah menjadi {berikutnya} atau {STATUS_BATAL}."}), 400
+    pesanan["status"] = berikutnya
+    return jsonify(lengkapi(pesanan))

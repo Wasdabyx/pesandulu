@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import time
+from datetime import datetime
 
 from data import DAFTAR, PELANGGAN, keadaan, pasang
 from konfigurasi import BERKAS_DATA, berhenti
@@ -10,15 +11,20 @@ from menu import HARGA_TERTINGGI, KATEGORI, STOK_TERTINGGI
 from menu import PANJANG_NAMA_TERTINGGI as PANJANG_NAMA_MENU
 from pelanggan import PANJANG_NAMA_TERTINGGI as PANJANG_NAMA_PELANGGAN
 from pelanggan import POLA_NO_HP
-from pesanan import JUMLAH_TERTINGGI, PANJANG_CATATAN_TERTINGGI, URUTAN_STATUS, WAKTU_AMBIL
+from pesanan import JUMLAH_TERTINGGI, PANJANG_ALASAN_TERTINGGI, PANJANG_CATATAN_TERTINGGI, SEMUA_STATUS, STATUS_BATAL, WAKTU_AMBIL
 from sesi import SESI
 
-VERSI = 2
+VERSI = 3
 KOLOM_MENU = ("id", "nama", "harga", "kategori", "tersedia", "stok")
 KOLOM_PELANGGAN = ("id", "nama", "no_hp", "kata_sandi")
-KOLOM_PESANAN = ("id", "pelanggan_id", "items", "total", "waktu_ambil", "catatan", "status")
+KOLOM_PESANAN = ("id", "pelanggan_id", "items", "total", "waktu_ambil", "catatan", "status", "dibuat", "dibatalkan_oleh", "alasan_batal")
 KOLOM_ITEM = ("menu_id", "nama", "harga", "jumlah")
-KOLOM_BARU = {2: {"menu": {"stok": None}, "pesanan": {"catatan": ""}}}
+KOLOM_BARU = {
+    2: {"menu": {"stok": None}, "pesanan": {"catatan": ""}},
+    3: {"pesanan": {"dibuat": None, "dibatalkan_oleh": None, "alasan_batal": ""}},
+}
+PEMBATAL = ("pelanggan", "penjual")
+POLA_WAKTU = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}")
 POLA_HASH = re.compile(r"pbkdf2:sha256:[1-9][0-9]{3,6}\$[A-Za-z0-9]{1,64}\$[0-9a-f]{64}")
 PERCOBAAN = 5
 JEDA_PERCOBAAN = 0.05
@@ -63,6 +69,20 @@ def bulat(nilai, terendah, tertinggi=None):
 
 def nama_sah(nilai, terpanjang):
     return isinstance(nilai, str) and 0 < len(nilai) <= terpanjang and nilai == " ".join(nilai.split())
+
+
+def teks_sah(nilai, terpanjang):
+    return isinstance(nilai, str) and len(nilai) <= terpanjang and nilai == " ".join(nilai.split())
+
+
+def waktu_sah(nilai):
+    if not isinstance(nilai, str) or POLA_WAKTU.fullmatch(nilai) is None:
+        return False
+    try:
+        datetime.strptime(nilai, "%Y-%m-%dT%H:%M:%S")
+    except ValueError:
+        return False
+    return True
 
 
 def tanpa_kembar(nilai):
@@ -120,9 +140,16 @@ def periksa_pesanan(butir, sebutan, baru):
     seharusnya = sum(item["harga"] * item["jumlah"] for item in items)
     syarat(type(pesanan["total"]) is int and pesanan["total"] == seharusnya, f"{sebutan}: total harus {seharusnya}, yaitu jumlah harga kali jumlah tiap item")
     syarat(isinstance(pesanan["waktu_ambil"], str) and pesanan["waktu_ambil"] in WAKTU_AMBIL, f"{sebutan}: waktu_ambil harus dari {WAKTU_AMBIL[0]} sampai {WAKTU_AMBIL[-1]} dengan menit 00, 15, 30, atau 45")
-    catatan = pesanan["catatan"]
-    syarat(isinstance(catatan, str) and len(catatan) <= PANJANG_CATATAN_TERTINGGI and catatan == " ".join(catatan.split()), f"{sebutan}: catatan harus teks paling panjang {PANJANG_CATATAN_TERTINGGI} karakter, tanpa spasi di tepi dan tanpa spasi ganda")
-    syarat(isinstance(pesanan["status"], str) and pesanan["status"] in URUTAN_STATUS, f"{sebutan}: status harus salah satu dari {', '.join(URUTAN_STATUS)}")
+    syarat(teks_sah(pesanan["catatan"], PANJANG_CATATAN_TERTINGGI), f"{sebutan}: catatan harus teks paling panjang {PANJANG_CATATAN_TERTINGGI} karakter, tanpa spasi di tepi dan tanpa spasi ganda")
+    syarat(isinstance(pesanan["status"], str) and pesanan["status"] in SEMUA_STATUS, f"{sebutan}: status harus salah satu dari {', '.join(SEMUA_STATUS)}")
+    syarat(pesanan["dibuat"] is None or waktu_sah(pesanan["dibuat"]), f"{sebutan}: dibuat harus null atau tanggal dan jam seperti 2026-11-28T16:29:05")
+    pembatal, alasan = pesanan["dibatalkan_oleh"], pesanan["alasan_batal"]
+    syarat(teks_sah(alasan, PANJANG_ALASAN_TERTINGGI), f"{sebutan}: alasan_batal harus teks paling panjang {PANJANG_ALASAN_TERTINGGI} karakter, tanpa spasi di tepi dan tanpa spasi ganda")
+    if pesanan["status"] == STATUS_BATAL:
+        syarat(isinstance(pembatal, str) and pembatal in PEMBATAL, f"{sebutan}: dibatalkan_oleh harus {' atau '.join(PEMBATAL)} karena statusnya {STATUS_BATAL}")
+        syarat(pembatal != "penjual" or alasan != "", f"{sebutan}: alasan_batal wajib diisi karena dibatalkan oleh penjual")
+    else:
+        syarat(pembatal is None and alasan == "", f"{sebutan}: dibatalkan_oleh harus null dan alasan_batal harus kosong karena statusnya bukan {STATUS_BATAL}")
     return pesanan
 
 
@@ -133,7 +160,7 @@ def periksa(isi):
     kolom = ("versi", "id_berikutnya", *DAFTAR)
     syarat(isinstance(isi, dict) and set(isi) == set(kolom), f"isinya harus berupa satu objek dengan tepat kolom {', '.join(kolom)}")
     versi = isi["versi"]
-    syarat(type(versi) is int and 1 <= versi <= VERSI, f"versi harus {' atau '.join(str(nomor) for nomor in range(1, VERSI + 1))}")
+    syarat(type(versi) is int and 1 <= versi <= VERSI, f"versi harus bilangan bulat 1 sampai {VERSI}")
     rapi = {}
     for jenis, periksa_butir in PEMERIKSA.items():
         syarat(isinstance(isi[jenis], list), f"{jenis} harus berupa daftar")

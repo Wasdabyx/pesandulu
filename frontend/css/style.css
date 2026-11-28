@@ -580,6 +580,12 @@ a.tombol {
   border-color: var(--warna-gagal-muda);
 }
 
+.label-status.dibatalkan {
+  color: var(--warna-gagal);
+  background: var(--warna-gagal-muda);
+  border-color: var(--warna-gagal);
+}
+
 .tombol-teks {
   padding: 4px 6px;
   font: inherit;
@@ -640,7 +646,8 @@ a.tombol {
 .sel-harga,
 .sel-ambil,
 .sel-stok,
-.sel-no-hp {
+.sel-no-hp,
+.sel-angka {
   font-variant-numeric: tabular-nums;
 }
 
@@ -651,8 +658,25 @@ a.tombol {
 
 .sel-harga,
 .sel-ambil,
-.sel-aksi {
+.sel-aksi,
+.sel-angka {
   white-space: nowrap;
+}
+
+.kelompok-aksi {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.tanda-hari-ini {
+  display: inline-block;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--warna-utama-tua);
+  white-space: nowrap;
+  background: var(--warna-utama-muda);
+  border-radius: 999px;
 }
 
 .sel-pelanggan,
@@ -771,32 +795,13 @@ a.tombol {
 
 .ringkasan {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   margin-top: 14px;
 }
 
-.kotak-angka.lebar-ganda {
-  grid-column: 1 / -1;
-}
-
-@media (min-width: 560px) {
-  .ringkasan-lebar {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 900px) {
-  .ringkasan-lebar {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .ringkasan-lebar .lebar-ganda {
-    grid-column: span 2;
-  }
-}
-
 .kotak-angka {
+  grid-column: span 2;
   min-width: 0;
   padding: 12px;
   background: var(--warna-latar);
@@ -841,13 +846,47 @@ a.tombol {
   color: #ffffff;
 }
 
+.kotak-angka.ada[data-status="dibatalkan"] {
+  background: var(--warna-gagal-muda);
+  border-color: var(--warna-gagal);
+}
+
+.kotak-angka.setengah {
+  grid-column: span 3;
+}
+
 .kotak-angka.lebar-ganda {
+  grid-column: 1 / -1;
   background: var(--warna-kedua);
   border-color: var(--warna-kedua);
 }
 
 .kotak-angka.lebar-ganda .nama-angka {
   color: var(--warna-teks);
+}
+
+@media (min-width: 640px) {
+  .ringkasan-lebar {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .ringkasan-lebar .kotak-angka {
+    grid-column: auto;
+  }
+
+  .ringkasan-lebar .kotak-angka.lebar-ganda {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 900px) {
+  .ringkasan-lebar {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .ringkasan-lebar .kotak-angka.lebar-ganda {
+    grid-column: span 2;
+  }
 }
 
 .daftar-terlaris {
@@ -953,6 +992,10 @@ a.tombol {
   --kertas: var(--warna-latar);
 }
 
+.item-pesanan[data-status="dibatalkan"] {
+  --kertas: var(--warna-gagal-muda);
+}
+
 .baris-pesanan {
   display: flex;
   align-items: center;
@@ -973,13 +1016,26 @@ a.tombol {
   overflow-wrap: anywhere;
 }
 
-.catatan-pesanan {
+.catatan-pesanan,
+.keterangan-batal {
   display: block;
   margin: 4px 0 0;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--warna-kedua-tua);
   overflow-wrap: anywhere;
+}
+
+.keterangan-batal {
+  color: var(--warna-gagal);
+}
+
+.waktu-pesan {
+  display: block;
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--warna-redup);
 }
 
 .rincian-pesanan {
@@ -1028,8 +1084,15 @@ a.tombol {
 }
 
 .item-pesanan[data-status="selesai"] .jam-ambil,
-.item-pesanan[data-status="selesai"] .total-pesanan {
+.item-pesanan[data-status="selesai"] .total-pesanan,
+.item-pesanan[data-status="dibatalkan"] .jam-ambil,
+.item-pesanan[data-status="dibatalkan"] .total-pesanan {
   color: var(--warna-redup);
+}
+
+.item-pesanan[data-status="dibatalkan"] .jam-ambil,
+.item-pesanan[data-status="dibatalkan"] .total-pesanan {
+  text-decoration: line-through;
 }
 
 .tombol-batalkan {
@@ -1214,6 +1277,53 @@ input.isian-cari {
   margin-top: 18px;
 }
 
+.pilihan-unduh,
+.baris-unduh {
+  max-width: 360px;
+}
+
+.baris-unduh {
+  flex-wrap: wrap;
+}
+
+.baris-unduh .tombol {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
+.dialog {
+  width: min(440px, calc(100% - 32px));
+  padding: 20px;
+  color: var(--warna-teks);
+  background: var(--warna-kartu);
+  border: 0;
+  border-radius: var(--sudut);
+  box-shadow: 0 24px 60px -20px rgba(28, 26, 22, 0.5);
+}
+
+.dialog::backdrop {
+  background: rgba(28, 26, 22, 0.55);
+}
+
+.dialog h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.dialog .keterangan {
+  overflow-wrap: anywhere;
+}
+
+.dialog .baris-tombol {
+  flex-wrap: wrap-reverse;
+}
+
+.dialog .tombol {
+  white-space: nowrap;
+}
+
 @media (min-width: 700px) {
   .kartu {
     padding: 22px 24px;
@@ -1280,6 +1390,17 @@ input.isian-cari {
 
   .tombol-teks {
     padding: 6px 8px;
+  }
+}
+
+@media (max-width: 419px) {
+  .ringkasan .kotak-angka {
+    grid-column: span 3;
+  }
+
+  .ringkasan .kotak-angka[data-status="dibatalkan"],
+  .ringkasan .kotak-angka.lebar-ganda {
+    grid-column: 1 / -1;
   }
 }
 

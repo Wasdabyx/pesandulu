@@ -8,8 +8,8 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=8">
-  <link rel="stylesheet" href="css/tabel-susun.css?v=8" media="(max-width: 900px)">
+  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/tabel-susun.css?v=9" media="(max-width: 900px)">
 </head>
 <body>
   <header class="kepala">
@@ -35,6 +35,7 @@
           <button type="button" class="tombol-saring" data-status="diproses" aria-pressed="false">Diproses <span class="jumlah-saring"></span></button>
           <button type="button" class="tombol-saring" data-status="siap diambil" aria-pressed="false">Siap diambil <span class="jumlah-saring"></span></button>
           <button type="button" class="tombol-saring" data-status="selesai" aria-pressed="false">Selesai <span class="jumlah-saring"></span></button>
+          <button type="button" class="tombol-saring" data-status="dibatalkan" aria-pressed="false">Dibatalkan <span class="jumlah-saring"></span></button>
         </div>
       </div>
       <p id="pesan-daftar" class="pesan" role="status">Memuat pesanan…</p>
@@ -60,16 +61,30 @@
     <tr>
       <td class="sel-nomor"></td>
       <td class="sel-pelanggan" data-label="Pelanggan"></td>
-      <td class="sel-isi" data-label="Pesanan"><span><span class="isi-baris"></span><span class="catatan-pesanan" hidden></span></span></td>
+      <td class="sel-isi" data-label="Pesanan"><span><span class="isi-baris"></span><span class="catatan-pesanan" hidden></span><span class="keterangan-batal" hidden></span><span class="waktu-pesan" hidden></span></span></td>
       <td class="sel-ambil" data-label="Ambil"></td>
       <td class="sel-harga" data-label="Total"></td>
       <td data-label="Status"><span class="label-status"></span></td>
-      <td class="sel-aksi" data-label="Aksi"><button type="button" class="tombol utama kecil tombol-lanjut"></button></td>
+      <td class="sel-aksi" data-label="Aksi"><span class="kelompok-aksi"><button type="button" class="tombol utama kecil tombol-lanjut"></button><button type="button" class="tombol bahaya kecil tombol-tolak"></button></span></td>
     </tr>
   </template>
 
-  <script src="js/config.js?v=8"></script>
-  <script src="js/umum.js?v=8"></script>
-  <script src="js/antrean-pesanan.js?v=8"></script>
+  <dialog id="dialog-batal" class="dialog" aria-labelledby="judul-dialog-batal">
+    <form id="formulir-batal" class="formulir">
+      <h2 id="judul-dialog-batal"></h2>
+      <p id="ringkasan-batal" class="keterangan"></p>
+      <label for="isian-alasan">Alasan <span class="opsional">(dibaca pelanggan)</span></label>
+      <input id="isian-alasan" name="alasan" type="text" maxlength="100" autocomplete="off" placeholder="Contoh: bahan habis" required>
+      <p id="pesan-dialog-batal" class="pesan" role="alert"></p>
+      <div class="baris-tombol rata">
+        <button type="button" id="tutup-dialog-batal" class="tombol">Kembali</button>
+        <button type="submit" id="kirim-batal" class="tombol bahaya"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/config.js?v=9"></script>
+  <script src="js/umum.js?v=9"></script>
+  <script src="js/antrean-pesanan.js?v=9"></script>
 </body>
 </html>

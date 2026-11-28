@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from werkzeug.security import generate_password_hash
 
 CARA_HASH = "pbkdf2:sha256:600000"
@@ -13,6 +15,18 @@ def teks_utf8_sah(teks):
     except UnicodeEncodeError:
         return False
     return True
+
+
+def sekarang():
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def hari_ini():
+    return sekarang()[:10]
+
+
+def tanggal_dibuat(pesanan):
+    return pesanan["dibuat"][:10] if pesanan["dibuat"] else None
 
 
 _SANDI_CONTOH = hash_sandi("pelanggan123")
@@ -41,6 +55,9 @@ PESANAN = [
         "waktu_ambil": "10:30",
         "catatan": "",
         "status": "selesai",
+        "dibuat": None,
+        "dibatalkan_oleh": None,
+        "alasan_batal": "",
     },
     {
         "id": 2,
@@ -53,6 +70,9 @@ PESANAN = [
         "waktu_ambil": "12:00",
         "catatan": "",
         "status": "siap diambil",
+        "dibuat": None,
+        "dibatalkan_oleh": None,
+        "alasan_batal": "",
     },
     {
         "id": 3,
@@ -65,6 +85,9 @@ PESANAN = [
         "waktu_ambil": "12:15",
         "catatan": "",
         "status": "diproses",
+        "dibuat": None,
+        "dibatalkan_oleh": None,
+        "alasan_batal": "",
     },
     {
         "id": 4,
@@ -74,6 +97,9 @@ PESANAN = [
         "waktu_ambil": "12:30",
         "catatan": "Tidak pedas",
         "status": "menunggu",
+        "dibuat": None,
+        "dibatalkan_oleh": None,
+        "alasan_batal": "",
     },
 ]
 

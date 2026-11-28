@@ -8,6 +8,8 @@ const HALAMAN_DASHBOARD = {
   pelanggan: "dashboard-pelanggan.html",
   penjual: "dashboard-penjual.html",
 };
+const STATUS_AKTIF = ["menunggu", "diproses", "siap diambil"];
+const NAMA_BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
 function formatRupiah(angka) {
   return `Rp ${angka.toLocaleString("id-ID")}`;
@@ -19,6 +21,15 @@ function formatNoHp(noHp) {
 
 function formatWaktu(waktu) {
   return waktu.replace(":", ".");
+}
+
+function formatTanggal(tanggal) {
+  const [tahun, bulan, hari] = tanggal.split("-").map(Number);
+  return `${hari} ${NAMA_BULAN[bulan - 1]} ${tahun}`;
+}
+
+function formatDibuat(dibuat) {
+  return `${formatTanggal(dibuat.slice(0, 10))}, ${formatWaktu(dibuat.slice(11, 16))}`;
 }
 
 function ringkasItems(items) {
@@ -35,6 +46,19 @@ function isiCatatan(elemen, catatan) {
   elemen.textContent = catatan === "" ? "" : `Catatan: ${catatan}`;
 }
 
+function isiKeteranganBatal(elemen, pesanan) {
+  const dibatalkan = pesanan.status === "dibatalkan";
+  elemen.hidden = !dibatalkan;
+  elemen.textContent = dibatalkan
+    ? `Dibatalkan oleh ${pesanan.dibatalkan_oleh}${pesanan.alasan_batal === "" ? "" : `: ${pesanan.alasan_batal}`}`
+    : "";
+}
+
+function isiWaktuPesan(elemen, pesanan) {
+  elemen.hidden = !pesanan.dibuat;
+  elemen.textContent = pesanan.dibuat ? `Dipesan ${formatDibuat(pesanan.dibuat)}` : "";
+}
+
 function menuHabis(menu) {
   return !menu.tersedia || menu.stok === 0;
 }
@@ -45,6 +69,8 @@ function isiPesanan(elemen, pesanan) {
   isiLabelStatus(elemen.querySelector(".label-status"), pesanan.status);
   elemen.querySelector(".isi-pesanan").textContent = ringkasItems(pesanan.items);
   isiCatatan(elemen.querySelector(".catatan-pesanan"), pesanan.catatan);
+  isiKeteranganBatal(elemen.querySelector(".keterangan-batal"), pesanan);
+  isiWaktuPesan(elemen.querySelector(".waktu-pesan"), pesanan);
   elemen.querySelector(".jam-ambil").textContent = formatWaktu(pesanan.waktu_ambil);
   elemen.querySelector(".total-pesanan").textContent = formatRupiah(pesanan.total);
 }
@@ -67,7 +93,7 @@ function hapusToken() {
   localStorage.removeItem(KUNCI_TOKEN);
 }
 
-async function panggilApi(alamat, metode = "GET", data) {
+async function mintaApi(alamat, metode, data) {
   if (window.location.protocol === "file:") {
     throw new Error("Halaman ini dibuka langsung sebagai berkas. Jalankan server front-end (lihat README), lalu buka alamatnya di browser.");
   }
@@ -94,24 +120,41 @@ async function panggilApi(alamat, metode = "GET", data) {
     throw new Error(PESAN_TIDAK_TERHUBUNG);
   }
 
-  const teks = await jawaban.text();
-  let isi = null;
-  try {
-    isi = teks ? JSON.parse(teks) : null;
-  } catch (galat) {
-    isi = null;
-  }
-
   if (jawaban.status === 401 && token) {
     hapusToken();
     window.location.replace("login.html");
   }
   if (!jawaban.ok) {
+    const isi = await jawaban.json().catch(() => null);
     const galat = new Error(isi && isi.pesan ? isi.pesan : `Permintaan gagal (HTTP ${jawaban.status}).`);
     galat.status = jawaban.status;
     throw galat;
   }
-  return isi;
+  return jawaban;
+}
+
+async function panggilApi(alamat, metode = "GET", data) {
+  const jawaban = await mintaApi(alamat, metode, data);
+  return jawaban.json().catch(() => null);
+}
+
+async function unduhBerkas(alamat, namaBerkas) {
+  const jawaban = await mintaApi(alamat, "GET");
+  let isi;
+  try {
+    isi = await jawaban.blob();
+  } catch (galat) {
+    throw new Error(PESAN_TIDAK_TERHUBUNG);
+  }
+
+  const alamatBerkas = URL.createObjectURL(isi);
+  const tautan = document.createElement("a");
+  tautan.href = alamatBerkas;
+  tautan.download = namaBerkas;
+  document.body.append(tautan);
+  tautan.click();
+  tautan.remove();
+  window.setTimeout(() => URL.revokeObjectURL(alamatBerkas), 60000);
 }
 
 async function muatSesi() {

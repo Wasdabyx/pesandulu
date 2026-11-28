@@ -50,7 +50,7 @@ async function batalkanPesanan(pesanan) {
     return;
   }
   try {
-    await panggilApi(`/api/pesanan/${pesanan.id}`, "DELETE");
+    await panggilApi(`/api/pesanan/${pesanan.id}`, "PATCH", { status: "dibatalkan" });
     tampilkanPesan(pesanDaftar, `Pesanan #${pesanan.id} dibatalkan.`, "ok");
   } catch (galat) {
     tampilkanPesan(pesanDaftar, galat.message, "gagal");

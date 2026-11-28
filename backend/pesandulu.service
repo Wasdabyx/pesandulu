@@ -6,6 +6,7 @@ After=network.target
 User=ubuntu
 WorkingDirectory=/home/ubuntu/pesandulu/backend
 ExecStart=/home/ubuntu/pesandulu/backend/.venv/bin/python app.py
+Environment=TZ=Asia/Jakarta
 SyslogIdentifier=pesandulu
 Restart=on-failure
 RestartSec=5

@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body class="ada-navigasi-bawah">
   <header class="kepala">
@@ -26,7 +26,8 @@
         <div class="kotak-angka" data-status="menunggu"><span class="angka"></span><span class="nama-angka">Menunggu</span></div>
         <div class="kotak-angka" data-status="diproses"><span class="angka"></span><span class="nama-angka">Diproses</span></div>
         <div class="kotak-angka" data-status="siap diambil"><span class="angka"></span><span class="nama-angka">Siap diambil</span></div>
-        <div class="kotak-angka" data-status="selesai"><span class="angka"></span><span class="nama-angka">Selesai</span></div>
+        <div class="kotak-angka setengah" data-status="selesai"><span class="angka"></span><span class="nama-angka">Selesai</span></div>
+        <div class="kotak-angka setengah" data-status="dibatalkan"><span class="angka"></span><span class="nama-angka">Dibatalkan</span></div>
       </div>
       <div class="tumpukan-tombol">
         <a class="tombol utama" href="buat-pesanan.html">Pesan Sekarang</a>
@@ -58,6 +59,8 @@
         </div>
         <p class="isi-pesanan"></p>
         <p class="catatan-pesanan" hidden></p>
+        <p class="keterangan-batal" hidden></p>
+        <p class="waktu-pesan" hidden></p>
       </div>
       <div class="tiket-bawah">
         <p class="rincian-pesanan"><span class="bagian-ambil">Ambil <strong class="jam-ambil"></strong></span><span class="pemisah-rincian"> · </span><strong class="total-pesanan"></strong></p>
@@ -65,8 +68,8 @@
     </li>
   </template>
 
-  <script src="js/config.js?v=8"></script>
-  <script src="js/umum.js?v=8"></script>
-  <script src="js/dashboard-pelanggan.js?v=8"></script>
+  <script src="js/config.js?v=9"></script>
+  <script src="js/umum.js?v=9"></script>
+  <script src="js/dashboard-pelanggan.js?v=9"></script>
 </body>
 </html>

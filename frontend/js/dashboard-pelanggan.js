@@ -19,7 +19,7 @@ function urutanAmbil(a, b) {
 }
 
 function tampilkan(pelanggan, daftarPesanan) {
-  const berjalan = daftarPesanan.filter((pesanan) => pesanan.status !== "selesai").sort(urutanAmbil);
+  const berjalan = daftarPesanan.filter((pesanan) => STATUS_AKTIF.includes(pesanan.status)).sort(urutanAmbil);
   sapaan.textContent = `Halo, ${pelanggan.nama}.`;
   for (const kotak of ringkasan.querySelectorAll("[data-status]")) {
     const jumlah = daftarPesanan.filter((pesanan) => pesanan.status === kotak.dataset.status).length;

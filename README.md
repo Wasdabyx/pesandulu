@@ -119,7 +119,7 @@ from app import app as application
 
 Coba buka alamat web app itu ditambah `/api/status`, misalnya `https://<nama pengguna>.pythonanywhere.com/api/status`. Kalau yang tampil halaman galat, pesan dari back-end tertulis di Error log pada tab Web.
 Kalau kata sandi penjual masih kata sandi contoh, back-end menulis peringatan di Error log setiap kali dimuat.
-Jam di server PythonAnywhere memakai UTC. Dua baris `TZ` di kode itu membuat back-end memakai WIB, jadi `waktu_server` menunjukkan jam WIB.
+Jam di server PythonAnywhere memakai UTC. Dua baris `TZ` di kode itu membuat back-end memakai WIB, jadi `waktu_server`, tanggal dan jam pesanan, serta rekap per hari mengikuti WIB.
 PythonAnywhere memakai server HTTP miliknya sendiri, bukan waitress, jadi `PESANDULU_HOST` dan `PESANDULU_PORT` tidak dipakai di sana. Keduanya tetap harus terisi.
 Data tersimpan di `pesandulu/backend/data.json`, jadi tetap ada setelah Reload.
 Setiap kali `.env` diubah, tekan Reload supaya nilai yang baru dipakai.
@@ -191,6 +191,7 @@ Isi `backend/pesandulu.service`:
 | `User=ubuntu` | Program berjalan sebagai pengguna `ubuntu`, bukan root |
 | `WorkingDirectory=/home/ubuntu/pesandulu/backend` | Folder tempat program dijalankan |
 | `ExecStart=/home/ubuntu/pesandulu/backend/.venv/bin/python app.py` | Perintah yang dijalankan: Python dari `.venv` menjalankan `app.py` |
+| `Environment=TZ=Asia/Jakarta` | Back-end memakai WIB, jadi tanggal dan jam pesanan serta rekap per hari mengikuti WIB walaupun jam server memakai UTC |
 | `SyslogIdentifier=pesandulu` | Nama program di catatan |
 | `Restart=on-failure` dan `RestartSec=5` | Kalau program mati karena galat, systemd menjalankannya lagi 5 detik kemudian |
 | `RestartPreventExitStatus=78` | Pengecualian: kalau konfigurasi salah, back-end berhenti dengan kode 78 dan tidak dijalankan lagi sampai diperbaiki |
@@ -221,6 +222,9 @@ Kalau repositori disalin ke folder lain atau pengguna servernya bukan `ubuntu`, 
 
 Halaman pelanggan dan halaman penjual membawa ke Login kalau belum login, dan ke Dashboard yang sesuai kalau login sebagai peran lain.
 Kedua Dashboard, Menu & Buat Pesanan, Pesanan Saya, Antrean Pesanan, dan Kelola Menu mengambil data terbaru dari back-end setiap 10 detik, jadi perubahan dari perangkat lain muncul tanpa memuat ulang halaman.
+Pesanan Saya, Dashboard pelanggan, dan Antrean Pesanan menampilkan tanggal dan jam tiap pesanan dibuat.
+Di Antrean Pesanan, penjual menolak atau membatalkan pesanan dengan mengisi alasan, dan alasan itu tampil di Pesanan Saya milik pemesannya.
+Dashboard penjual memuat rekap per hari dan tombol untuk mengunduh rekap itu serta daftar semua pesanan sebagai berkas CSV.
 Profil Anggota memuat profil anggota kelompok. Halaman itu statis dan tidak memanggil API, jadi tetap tampil walaupun back-end tidak bisa dihubungi.
 
 ## Login
@@ -255,14 +259,15 @@ Sesi disimpan di memori back-end dan berakhir saat logout atau saat back-end dij
 | DELETE | `/api/pelanggan/<id>` | Menghapus pelanggan | Pemilik akun |
 | GET | `/api/pesanan` | Penjual melihat semua pesanan; pelanggan melihat pesanannya sendiri | Penjual, pelanggan |
 | GET | `/api/pesanan/<id>` | Melihat satu pesanan | Penjual, pemesan |
-| GET | `/api/pesanan/aturan` | Melihat pilihan waktu ambil, jumlah tertinggi per menu, kuota per waktu ambil, dan panjang catatan | Semua |
+| GET | `/api/pesanan/aturan` | Melihat pilihan waktu ambil, jumlah tertinggi per menu, kuota per waktu ambil, panjang catatan, dan panjang alasan pembatalan | Semua |
 | GET | `/api/pesanan/waktu-penuh` | Melihat waktu ambil yang kuotanya sudah habis | Semua |
 | POST | `/api/pesanan` | Membuat pesanan atas nama pelanggan yang login | Pelanggan |
-| PATCH | `/api/pesanan/<id>` | Mengubah status pesanan | Penjual |
-| DELETE | `/api/pesanan/<id>` | Membatalkan pesanan | Pemesan |
-| GET | `/api/rekap` | Jumlah pesanan per status, total penjualan, dan menu terlaris | Penjual |
+| PATCH | `/api/pesanan/<id>` | Penjual memajukan status atau membatalkan pesanan; pemesan membatalkan pesanannya | Penjual, pemesan |
+| GET | `/api/rekap` | Jumlah pesanan per status, total penjualan, menu terlaris, dan rekap per hari | Penjual |
+| GET | `/api/rekap/harian.csv` | Mengunduh rekap per hari sebagai berkas CSV | Penjual |
+| GET | `/api/rekap/pesanan.csv` | Mengunduh daftar semua pesanan sebagai berkas CSV | Penjual |
 
-Isi permintaan dan jawaban berformat JSON. Pada PATCH menu dan pelanggan, kolom yang tidak dikirim tidak berubah.
+Isi permintaan dan jawaban berformat JSON, kecuali kedua unduhan CSV. Pada PATCH menu dan pelanggan, kolom yang tidak dikirim tidak berubah.
 Kalau permintaan gagal, back-end menjawab dengan kode status 4xx dan JSON `{"pesan": "..."}`: 401 kalau belum login, 403 kalau login sebagai peran atau pemilik yang salah.
 Kalau perubahan tidak bisa ditulis ke berkas data, jawabannya 503 dengan bentuk yang sama, dan perubahan itu dibatalkan.
 
@@ -270,22 +275,32 @@ Kalau perubahan tidak bisa ditulis ke berkas data, jawabannya 503 dengan bentuk 
 |---|---|
 | Menu | `nama`, `harga`, `kategori` (`Makanan` atau `Minuman`), `tersedia` (`true` atau `false`), `stok` (0 sampai 999, atau `null` kalau tidak dibatasi) |
 | Pelanggan | `nama`, `no_hp` (diawali `08`, 10 sampai 13 angka, tidak boleh sama dengan pelanggan lain), `kata_sandi` (6 sampai 64 karakter) |
-| Pesanan | `pelanggan_id`, `items` (daftar berisi `menu_id` dan `jumlah`), `waktu_ambil` (`09:00` sampai `16:00`, tiap 15 menit), `catatan` (paling panjang 100 karakter, boleh kosong), `total`, `status` |
+| Pesanan | `pelanggan_id`, `items` (daftar berisi `menu_id` dan `jumlah`), `waktu_ambil` (`09:00` sampai `16:00`, tiap 15 menit), `catatan` (paling panjang 100 karakter, boleh kosong), `total`, `status`, `dibuat` (tanggal dan jam pesanan dibuat), `dibatalkan_oleh` (`pelanggan`, `penjual`, atau `null`), `alasan_batal` (paling panjang 100 karakter, boleh kosong) |
 
 Kata sandi pelanggan disimpan sebagai hash dan tidak pernah dikirim balik oleh API.
 
 Aturan pesanan:
 
-- Saat pesanan dibuat, back-end mengisi `pelanggan_id` dari sesi login, memeriksa bahwa setiap menu tersedia, lalu menghitung `total` dan mengisi `status` dengan `menunggu`.
+- Saat pesanan dibuat, back-end mengisi `pelanggan_id` dari sesi login, memeriksa bahwa setiap menu tersedia, lalu menghitung `total`, mengisi `status` dengan `menunggu`, dan mengisi `dibuat` dengan tanggal dan jam server saat itu, misalnya `2026-11-28T10:15:00`.
+- Pesanan dari sebelum `dibuat` dicatat, termasuk empat pesanan di data awal, punya `dibuat` bernilai `null`.
 - Setiap item menyimpan salinan `nama` dan `harga` menu saat pesanan dibuat, jadi pesanan lama tidak berubah ketika harga menu diubah atau menunya dihapus.
-- Status hanya bisa maju satu langkah: `menunggu`, `diproses`, `siap diambil`, `selesai`. PATCH mengirim `{"status": "<status berikutnya>"}`.
-- Pesanan hanya bisa dibatalkan selama statusnya `menunggu`.
+- Status hanya bisa maju satu langkah: `menunggu`, `diproses`, `siap diambil`, `selesai`. PATCH mengirim `{"status": "<status berikutnya>"}`. Hanya penjual yang bisa memajukan status.
+- Pesanan dibatalkan dengan PATCH `{"status": "dibatalkan", "alasan": "..."}`. Pesanan itu tidak dihapus: statusnya menjadi `dibatalkan`, `dibatalkan_oleh` mencatat pembatalnya, dan `alasan_batal` mencatat alasannya.
+- Penjual bisa menolak atau membatalkan pesanan yang belum `selesai` dan wajib mengisi `alasan`. Pemesan hanya bisa membatalkan pesanannya selama statusnya `menunggu`, dan `alasan` boleh tidak diisi.
+- Pesanan yang sudah `selesai` atau `dibatalkan` tidak bisa diubah lagi.
 - Menu yang `tersedia`-nya `false` atau `stok`-nya 0 tidak bisa dipesan. Stok berkurang sebanyak jumlah yang dipesan dan kembali kalau pesanannya dibatalkan. Pesanan yang melebihi stok ditolak.
-- Satu waktu ambil menampung paling banyak 5 pesanan yang belum `selesai`. Pesanan ke waktu ambil yang sudah penuh ditolak.
-- `catatan` dirapikan: spasi di tepi dibuang dan spasi ganda dijadikan satu.
-- Akun pelanggan tidak bisa dihapus selama masih punya pesanan yang belum `selesai`.
+- Satu waktu ambil menampung paling banyak 5 pesanan yang masih berjalan, yaitu yang belum `selesai` dan tidak `dibatalkan`. Pesanan ke waktu ambil yang sudah penuh ditolak.
+- Kuota itu tidak dihitung per hari. Pesanan hari sebelumnya yang masih berjalan tetap mengisi waktu ambilnya sampai diselesaikan atau dibatalkan.
+- `catatan` dan `alasan` dirapikan: spasi di tepi dibuang dan spasi ganda dijadikan satu.
+- Akun pelanggan tidak bisa dihapus selama masih punya pesanan yang masih berjalan.
 - Jawaban API menambahkan `nama_pelanggan`, yang bernilai `null` kalau akunnya sudah dihapus.
 - Penjualan dan menu terlaris di `/api/rekap` dihitung dari pesanan yang sudah `selesai`.
+- Rekap per hari mengelompokkan pesanan menurut tanggal `dibuat`. Pesanan yang `dibuat`-nya `null` masuk ke satu baris tersendiri.
+
+Kedua unduhan CSV berisi teks UTF-8 yang diawali BOM, supaya huruf dan tanda bacanya terbaca benar di Excel.
+Kolomnya dipisahkan koma. Dengan `?pemisah=titik-koma` pemisahnya titik koma, untuk Excel yang memakai koma sebagai tanda desimal.
+Sel yang diawali `=`, `+`, `-`, atau `@` diberi tanda petik tunggal di depannya, supaya tidak dijalankan sebagai rumus.
+Jam server mengikuti zona waktu tempat back-end berjalan. Di PythonAnywhere dan di layanan systemd, zona waktunya diatur ke WIB seperti tertulis di bagian pemasangannya.
 
 Data awal ada di `backend/data.py` dan dipakai kalau berkas data belum ada. Setiap perubahan langsung ditulis ke berkas data, jadi menu, pelanggan, dan pesanan tetap ada setelah back-end dijalankan ulang.
 Sesi login tidak ikut disimpan, jadi setelah back-end dijalankan ulang semua pengguna login lagi.
@@ -302,8 +317,8 @@ Warna dan font diatur lewat variabel di bagian paling atas `frontend/css/style.c
 | `--warna-kedua` | `#f8c12c` | Warna kedua: separuh nama aplikasi, penanda navigasi, nomor langkah, kotak Penjualan |
 | `--warna-kedua-muda` | `#fff3cc` | Latar lembut: status menunggu, pemberitahuan |
 | `--warna-kedua-tua` | `#7a5200` | Tulisan di atas latar kuning muda |
-| `--warna-gagal` | `#bf2f1f` | Pesan galat, tombol hapus, label habis |
-| `--warna-gagal-muda` | `#fde9e5` | Latar pesan galat |
+| `--warna-gagal` | `#bf2f1f` | Pesan galat, tombol hapus dan batalkan, label habis, status dibatalkan |
+| `--warna-gagal-muda` | `#fde9e5` | Latar lembut: pesan galat, status dibatalkan |
 | `--warna-teks` | `#1c1a16` | Tulisan |
 | `--warna-redup` | `#625c52` | Tulisan keterangan |
 | `--warna-latar` | `#f1f5ee` | Latar halaman |
@@ -360,7 +375,7 @@ Kalau ada variabel yang belum diisi atau nilainya salah, back-end tidak mau berj
 Di berkas `.env`, nilai yang memuat spasi atau tanda `#` ditulis di antara tanda kutip tunggal, misalnya `PESANDULU_SANDI_PENJUAL='sate #1 enak'`.
 
 Berkas data berisi menu, pelanggan, dan pesanan dalam format JSON. Kata sandi pelanggan di dalamnya berupa hash. Berkas itu dibuat saat back-end pertama kali berjalan, berisi data awal.
-Berkas data dari versi lama, yang belum punya `stok` dan `catatan`, dinaikkan sendiri saat dimuat. Isi lamanya disalin dulu ke `data.json.versi-1` di folder yang sama, dan salinan itu juga tidak ikut Git.
+Berkas data dari versi lama dinaikkan sendiri saat dimuat: versi 1 belum punya `stok` dan `catatan`, versi 2 belum punya `dibuat`, `dibatalkan_oleh`, dan `alasan_batal`. Isi lamanya disalin dulu ke `data.json.versi-1` atau `data.json.versi-2` di folder yang sama, dan salinan itu juga tidak ikut Git.
 Back-end memuat berkas itu lagi setiap kali isinya berubah. Jadi kalau berkasnya dihapus, back-end kembali ke data awal, dan kalau isinya diganti, isi yang baru yang dipakai.
 Kalau isi berkas itu tidak sah, back-end tidak mau berjalan dan menyebutkan bagian yang salah. Kalau itu terjadi selagi back-end berjalan, data terakhir tetap bisa dilihat, tetapi perubahan ditolak sampai berkasnya diperbaiki.
 Sebelum menulis, back-end memeriksa data dengan pemeriksa yang sama dengan saat memuat, jadi berkas yang ditulisnya selalu bisa dimuat lagi.
@@ -381,5 +396,5 @@ Situs di Vercel memakai HTTPS, dan browser menolak panggilan dari halaman HTTPS 
 
 ## Mengubah CSS atau JavaScript
 
-Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=8`, misalnya `js/umum.js?v=8`.
+Setiap halaman memanggil CSS dan JavaScript dengan akhiran `?v=9`, misalnya `js/umum.js?v=9`.
 Setiap kali CSS atau JavaScript diubah, naikkan angka itu di semua berkas HTML. Alamat yang berubah membuat browser mengambil berkas yang baru, bukan salinan lama yang disimpannya.

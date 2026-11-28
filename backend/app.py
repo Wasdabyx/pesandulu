@@ -1,6 +1,5 @@
 import logging
 import sys
-from datetime import datetime
 from threading import Lock
 from urllib.parse import quote
 
@@ -8,6 +7,7 @@ from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
+from data import sekarang
 from konfigurasi import ALLOWED_ORIGINS, BERKAS_DATA, HOST, HOST_LOKAL, PORT, berhenti, sandi_penjual_masih_contoh
 from login import login_bp
 from menu import menu_bp
@@ -50,7 +50,7 @@ def status():
         {
             "aplikasi": "PesanDulu",
             "status": "ok",
-            "waktu_server": datetime.now().isoformat(timespec="seconds"),
+            "waktu_server": sekarang(),
         }
     )
 

@@ -8,7 +8,8 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/PlusJakartaSans.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/tabel-susun.css?v=9" media="(max-width: 900px)">
 </head>
 <body>
   <header class="kepala">
@@ -32,7 +33,8 @@
         <div class="kotak-angka" data-status="menunggu"><span class="angka"></span><span class="nama-angka">Menunggu</span></div>
         <div class="kotak-angka" data-status="diproses"><span class="angka"></span><span class="nama-angka">Diproses</span></div>
         <div class="kotak-angka" data-status="siap diambil"><span class="angka"></span><span class="nama-angka">Siap diambil</span></div>
-        <div class="kotak-angka" data-status="selesai"><span class="angka"></span><span class="nama-angka">Selesai</span></div>
+        <div class="kotak-angka setengah" data-status="selesai"><span class="angka"></span><span class="nama-angka">Selesai</span></div>
+        <div class="kotak-angka setengah" data-status="dibatalkan"><span class="angka"></span><span class="nama-angka">Dibatalkan</span></div>
         <div class="kotak-angka lebar-ganda"><span id="total-penjualan" class="angka"></span><span class="nama-angka">Penjualan</span></div>
       </div>
     </section>
@@ -44,7 +46,57 @@
       <p id="terlaris-kosong" class="keterangan" hidden>Belum ada pesanan yang selesai.</p>
       <p class="total-terjual"><span>Total terjual</span><strong id="total-terjual"></strong></p>
     </section>
+
+    <section class="kartu" aria-labelledby="judul-harian">
+      <h2 id="judul-harian">Rekap per Hari</h2>
+      <p class="keterangan">Pesanan dikelompokkan menurut tanggal dibuatnya.</p>
+      <table class="tabel">
+        <thead>
+          <tr>
+            <th scope="col">Tanggal</th>
+            <th scope="col">Pesanan</th>
+            <th scope="col">Berjalan</th>
+            <th scope="col">Selesai</th>
+            <th scope="col">Dibatalkan</th>
+            <th scope="col">Terjual</th>
+            <th scope="col">Penjualan</th>
+          </tr>
+        </thead>
+        <tbody id="badan-tabel-harian"></tbody>
+      </table>
+      <p id="keterangan-tanpa-tanggal" class="keterangan" hidden>Tidak tercatat: pesanan yang dibuat sebelum tanggal dan jam pesanan mulai dicatat.</p>
+    </section>
+
+    <section class="kartu" aria-labelledby="judul-unduh">
+      <h2 id="judul-unduh">Unduh Data</h2>
+      <p class="keterangan">Berkas CSV bisa dibuka di Excel, Google Sheets, atau LibreOffice Calc.</p>
+      <div class="formulir pilihan-unduh">
+        <label for="pemisah-csv">Pemisah kolom</label>
+        <select id="pemisah-csv">
+          <option value="titik-koma">Titik koma (;)</option>
+          <option value="koma">Koma (,)</option>
+        </select>
+      </div>
+      <p class="keterangan">Kalau di Excel semua isi masuk ke satu kolom, ganti pemisah kolom lalu unduh lagi.</p>
+      <div class="baris-tombol baris-unduh">
+        <button type="button" class="tombol tombol-unduh" data-berkas="rekap-harian">Rekap per hari</button>
+        <button type="button" class="tombol tombol-unduh" data-berkas="pesanan">Daftar pesanan</button>
+      </div>
+      <p id="pesan-unduh" class="pesan" role="status"></p>
+    </section>
   </main>
+
+  <template id="templat-baris-harian">
+    <tr>
+      <td class="sel-nama sel-tanggal"><span class="teks-tanggal"></span> <span class="tanda-hari-ini" hidden>hari ini</span></td>
+      <td class="sel-angka sel-jumlah-pesanan" data-label="Pesanan"></td>
+      <td class="sel-angka sel-berjalan" data-label="Berjalan"></td>
+      <td class="sel-angka sel-selesai" data-label="Selesai"></td>
+      <td class="sel-angka sel-dibatalkan" data-label="Dibatalkan"></td>
+      <td class="sel-angka sel-terjual" data-label="Terjual"></td>
+      <td class="sel-harga" data-label="Penjualan"></td>
+    </tr>
+  </template>
 
   <template id="templat-terlaris">
     <li class="baris-terlaris">
@@ -54,8 +106,8 @@
     </li>
   </template>
 
-  <script src="js/config.js?v=8"></script>
-  <script src="js/umum.js?v=8"></script>
-  <script src="js/dashboard-penjual.js?v=8"></script>
+  <script src="js/config.js?v=9"></script>
+  <script src="js/umum.js?v=9"></script>
+  <script src="js/dashboard-penjual.js?v=9"></script>
 </body>
 </html>
